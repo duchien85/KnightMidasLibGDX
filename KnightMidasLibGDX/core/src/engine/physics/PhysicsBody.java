@@ -1,27 +1,52 @@
 
 package engine.physics;
 
-public class PhysicsBody {
-    
-    private Shape bounds;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 
-    public PhysicsBody(float x, float y, float width, float height) {
+public abstract class PhysicsBody {
+    
+    protected Rectangle bounds;
+    protected BodyType type;
+    protected boolean isActive;
+
+    
+    protected PhysicsBody(float x, float y, float width, float height, BodyType type) {
         this.bounds = new Rectangle(x, y, width, height);
+        this.type = type;
+        this.isActive = true;
     }
     
-    protected PhysicsBody(float x, float y, float radius) {
-        this.bounds = new Circle(x, y, radius);
+    protected PhysicsBody(Rectangle rect, BodyType type) {
+        this.type = type;
     }
+    
     
     public float getX() {
-        return this.bounds.x;
+        return this.bounds.getX();
     }
     
     public float getY() {
-        return this.bounds.y;
+        return this.bounds.getY();
     }
     
-    public Shape getShape() {
-        return this.bounds;
+    public float getWidth() {
+        return this.bounds.getWidth();
     }
+    
+    public float getHeight() {
+        return this.bounds.getHeight();
+    }
+    
+    public Vector2 getPosition() {
+        return new Vector2(this.bounds.x, this.bounds.y);
+    }
+    
+    public void setPosition(Vector2 position) {
+        this.bounds.setPosition(position);
+    }
+}
+
+enum BodyType {
+    DYNAMIC, STATIC;
 }
