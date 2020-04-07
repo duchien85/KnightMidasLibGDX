@@ -13,25 +13,34 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Player extends GameObject implements Disposable {
     
     //Input
     private boolean up, left, right, down, attack, jump;
     
+    //Logic
+    private boolean isGrounded = false;
+    
     //Physics
-    protected Rectangle body;
-    private float speed, moveSpeed = 1/8f;
+    protected Rectangle body, feet;
+    protected List<Rectangle> parts;
+    private float xSpeed, ySpeed, moveSpeed = 7.5f, jumpSpeed = 7.5f;
+    private float gravity = -10f;
     
     //Render
     protected Sprite sprite;
     private Texture spritesheetTexture;
     private HashMap<PlayerState, Animation<TextureRegion>> animations;
+    
     protected TextureRegion actualRegion;
     protected PlayerState actualState = PlayerState.HERO_IDLE;
-    
+    private boolean flipX = false, flipY = false;
     private float animationTimer = 0;
 
     
@@ -63,12 +72,51 @@ public class Player extends GameObject implements Disposable {
         
         
         //Physics
-        speed = moveSpeed;
+        xSpeed = moveSpeed;
+        Vector2 futurePosition = new Vector2(0, 0);
         
-        if (right)
-            body.x += speed;
-        else if (left)
-            body.x -= speed;
+        if (right) {
+            futurePosition.x += xSpeed * dt;
+            flipX = false;
+        } else if (left) {
+            futurePosition.x -= xSpeed * dt;
+            flipX = true;
+        }
+        
+        if (up && isGrounded) {
+            isGrounded = false;
+            ySpeed = jumpSpeed;
+        }
+        
+        ySpeed += gravity * dt;
+        futurePosition.y += ySpeed * dt;
+        
+        boolean bodyCollided = false;
+        boolean feetCollided = false;
+        Rectangle futureBodyPosition = new Rectangle(body.x + futurePosition.x, body.y + futurePosition.y,
+            body.width, body.height);
+        Rectangle futureFeetPosition = new Rectangle(feet.x + futurePosition.x, feet.y + futurePosition.y,
+            feet.width, feet.height);
+        for (Rectangle wall : actualLevel.walls) {
+            
+            if (wall.overlaps(futureBodyPosition)) bodyCollided = true;
+            if (wall.overlaps(futureFeetPosition)) feetCollided = true;
+            
+            if (bodyCollided || feetCollided) break;
+        }
+        
+        if (!bodyCollided) {
+            body.x = futureBodyPosition.x;
+            feet.x = futureFeetPosition.x;
+        }
+        
+        if (!feetCollided) {
+            body.y = futureBodyPosition.y;
+            feet.y = futureFeetPosition.y;
+        } else {
+            isGrounded = true;
+            ySpeed = 0;
+        }
         
         
         //Render
@@ -76,6 +124,7 @@ public class Player extends GameObject implements Disposable {
         actualRegion = animations.get(actualState).getKeyFrame(animationTimer);
         sprite.setRegion(actualRegion);
         sprite.setPosition(body.x, body.y);
+        sprite.setFlip(flipX, flipY);
     }
     
     public void render(SpriteBatch batch) {
@@ -84,7 +133,14 @@ public class Player extends GameObject implements Disposable {
     
     
     public void createBody() {
-        body = new Rectangle(0, 0, 4, 4);
+        parts = new ArrayList<Rectangle>();
+        
+        body = new Rectangle(0, 9 + UnitHelper.pixelsToMeters(2), 4, 4);
+        feet = new Rectangle(UnitHelper.pixelsToMeters(22), 9,
+                UnitHelper.pixelsToMeters(20), UnitHelper.pixelsToMeters(2));
+        
+        parts.add(body);
+        parts.add(feet);
     }
     
     public void createRender() {

@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -42,6 +43,7 @@ public class PlayScreen implements Screen {
         
         //Objects
         p1 = new Player();
+        p1.actualLevel = level;
     }
 
     @Override
@@ -80,12 +82,28 @@ public class PlayScreen implements Screen {
     
     private void renderDebug() {
         
-        //Player Physics
+        //Player Parts
+        /*
+        for (Rectangle part : p1.parts) {
+            debugRenderer.setProjectionMatrix(camera.combined);
+            debugRenderer.begin(ShapeRenderer.ShapeType.Line);
+            debugRenderer.setColor(Color.RED);
+            debugRenderer.rect(part.x, part.y, part.width, part.height);
+            debugRenderer.end();
+        }
+        */
+        
         debugRenderer.setProjectionMatrix(camera.combined);
-	debugRenderer.begin(ShapeRenderer.ShapeType.Line);
-	debugRenderer.setColor(Color.RED);
-	debugRenderer.rect(p1.body.x, p1.body.y, p1.body.width, p1.body.height);
-	debugRenderer.end();
+        debugRenderer.begin(ShapeRenderer.ShapeType.Line);
+        debugRenderer.setColor(Color.RED);
+        debugRenderer.rect(p1.body.x, p1.body.y, p1.body.width, p1.body.height);
+        debugRenderer.end();
+        
+        debugRenderer.setProjectionMatrix(camera.combined);
+        debugRenderer.begin(ShapeRenderer.ShapeType.Line);
+        debugRenderer.setColor(Color.BLUE);
+        debugRenderer.rect(p1.feet.x, p1.feet.y, p1.feet.width, p1.feet.height);
+        debugRenderer.end();
     }
 
     @Override
