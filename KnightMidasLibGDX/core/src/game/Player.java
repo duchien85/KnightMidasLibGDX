@@ -1,6 +1,7 @@
 
 package game;
 
+import game.animations.PlayerState;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import game.animations.AnimationHelper;
@@ -26,15 +27,18 @@ public class Player extends GameObject implements Disposable {
     
     //Logic
     private boolean isGrounded = false;
+    private boolean isAttacking = false;
     
     //Physics
-    protected Rectangle body, feet;
+    protected Rectangle body, feet, spriteArea, mainHurtbox, swordHitbox;
+    protected Vector2 position;
     protected List<Rectangle> parts;
     private float xSpeed, ySpeed, moveSpeed = 7.5f, jumpSpeed = 7.5f;
-    private float gravity = -10f;
+    private float gravity = Main.GRAVITY;
     
     //Render
     protected Sprite sprite;
+    private float spriteWidthPixels = 64, spriteHeightPixels = 64;
     private Texture spritesheetTexture;
     private HashMap<PlayerState, Animation<TextureRegion>> animations;
     
@@ -44,9 +48,9 @@ public class Player extends GameObject implements Disposable {
     private float animationTimer = 0;
 
     
-    public Player() {
+    public Player(float posX, float posY) {
         
-        createBody();
+        createBody(posX, posY);
         createRender();
     }
     
@@ -65,7 +69,11 @@ public class Player extends GameObject implements Disposable {
         if (left && right)
             left = right = false;
         
-        if (!(right || left))
+        isAttacking = attack;
+        
+        if (attack)
+            actualState = PlayerState.HERO_STAB;
+        else if (!(right || left))
             actualState = PlayerState.HERO_IDLE;
         else
             actualState = PlayerState.HERO_WALK;
@@ -73,13 +81,13 @@ public class Player extends GameObject implements Disposable {
         
         //Physics
         xSpeed = moveSpeed;
-        Vector2 futurePosition = new Vector2(0, 0);
+        Vector2 futurePositionOffset = new Vector2(0, 0);
         
         if (right) {
-            futurePosition.x += xSpeed * dt;
+            futurePositionOffset.x += xSpeed * dt;
             flipX = false;
         } else if (left) {
-            futurePosition.x -= xSpeed * dt;
+            futurePositionOffset.x -= xSpeed * dt;
             flipX = true;
         }
         
@@ -89,30 +97,54 @@ public class Player extends GameObject implements Disposable {
         }
         
         ySpeed += gravity * dt;
-        futurePosition.y += ySpeed * dt;
+        futurePositionOffset.y += ySpeed * dt;
         
         boolean bodyCollided = false;
         boolean feetCollided = false;
-        Rectangle futureBodyPosition = new Rectangle(body.x + futurePosition.x, body.y + futurePosition.y,
-            body.width, body.height);
-        Rectangle futureFeetPosition = new Rectangle(feet.x + futurePosition.x, feet.y + futurePosition.y,
-            feet.width, feet.height);
+        Rectangle futureBodyPosition = new Rectangle(
+                body.x + futurePositionOffset.x, body.y + futurePositionOffset.y,
+                body.width, body.height);
+        
+        Rectangle futureFeetPosition = new Rectangle(
+                feet.x + futurePositionOffset.x, feet.y + futurePositionOffset.y,
+                feet.width, feet.height);
+        
+        Rectangle futureSwordPosition = new Rectangle(
+                swordHitbox.x + futurePositionOffset.x, swordHitbox.y + futurePositionOffset.y,
+                swordHitbox.width, swordHitbox.height);
+        
         for (Rectangle wall : actualLevel.walls) {
+            if (futureBodyPosition.overlaps(wall)) bodyCollided = true;
+            if (futureFeetPosition.overlaps(wall)) feetCollided = true;
             
-            if (wall.overlaps(futureBodyPosition)) bodyCollided = true;
-            if (wall.overlaps(futureFeetPosition)) feetCollided = true;
-            
-            if (bodyCollided || feetCollided) break;
+            if (bodyCollided && feetCollided) break;
+        }
+        
+        for (Snake snake : actualLevel.snakes) {
+            if (isAttacking && futureSwordPosition.overlaps(snake.body)) {
+                System.out.println("Acertou a cobra!!");
+            }
         }
         
         if (!bodyCollided) {
-            body.x = futureBodyPosition.x;
-            feet.x = futureFeetPosition.x;
+            position.x += futurePositionOffset.x;
+            body.x += futurePositionOffset.x;
+            feet.x += futurePositionOffset.x;
+            spriteArea.x += futurePositionOffset.x;
+            mainHurtbox.x += futurePositionOffset.x;
+            swordHitbox.x += futurePositionOffset.x;
         }
         
         if (!feetCollided) {
-            body.y = futureBodyPosition.y;
-            feet.y = futureFeetPosition.y;
+            position.y += futurePositionOffset.y;
+            body.y += futurePositionOffset.y;
+            feet.y += futurePositionOffset.y;
+            spriteArea.y += futurePositionOffset.y;
+            mainHurtbox.y += futurePositionOffset.y;
+            swordHitbox.y += futurePositionOffset.y;
+            
+            isGrounded = false;
+            
         } else {
             isGrounded = true;
             ySpeed = 0;
@@ -123,7 +155,7 @@ public class Player extends GameObject implements Disposable {
         animationTimer += dt;
         actualRegion = animations.get(actualState).getKeyFrame(animationTimer);
         sprite.setRegion(actualRegion);
-        sprite.setPosition(body.x, body.y);
+        sprite.setPosition(spriteArea.x, spriteArea.y);
         sprite.setFlip(flipX, flipY);
     }
     
@@ -132,21 +164,36 @@ public class Player extends GameObject implements Disposable {
     }
     
     
-    public void createBody() {
+    public void createBody(float posX, float posY) {
         parts = new ArrayList<Rectangle>();
         
-        body = new Rectangle(0, 9 + UnitHelper.pixelsToMeters(2), 4, 4);
-        feet = new Rectangle(UnitHelper.pixelsToMeters(22), 9,
-                UnitHelper.pixelsToMeters(20), UnitHelper.pixelsToMeters(2));
+        position = new Vector2(posX, posY);
+        body = new Rectangle(posX + UnitHelper.pixelsToMeters(24), posY + UnitHelper.pixelsToMeters(1),
+                UnitHelper.pixelsToMeters(16), UnitHelper.pixelsToMeters(24));
+        
+        feet = new Rectangle(posX + UnitHelper.pixelsToMeters(25), posY,
+                UnitHelper.pixelsToMeters(14), UnitHelper.pixelsToMeters(1));
+        
+        spriteArea = new Rectangle(posX, posY, 
+                UnitHelper.pixelsToMeters(spriteWidthPixels), UnitHelper.pixelsToMeters(spriteHeightPixels));
+        
+        mainHurtbox = new Rectangle(posX + UnitHelper.pixelsToMeters(22), posY + UnitHelper.pixelsToMeters(2),
+                UnitHelper.pixelsToMeters(20), UnitHelper.pixelsToMeters(23));
+        
+        swordHitbox = new Rectangle(posX + UnitHelper.pixelsToMeters(44), posY + UnitHelper.pixelsToMeters(1),
+                UnitHelper.pixelsToMeters(19), UnitHelper.pixelsToMeters(8));
         
         parts.add(body);
         parts.add(feet);
+        parts.add(spriteArea);
+        parts.add(mainHurtbox);
+        parts.add(swordHitbox);
     }
     
     public void createRender() {
         
         sprite = new Sprite();
-        sprite.setBounds(0, 0, UnitHelper.pixelsToMeters(64), UnitHelper.pixelsToMeters(64));
+        sprite.setBounds(spriteArea.x, spriteArea.y, spriteArea.width, spriteArea.height);
         sprite.setScale(1, 1);
         
         spritesheetTexture = new Texture(StringPaths.texture_Hero);
@@ -160,11 +207,10 @@ public class Player extends GameObject implements Disposable {
             anim = bundle.getByName(state.getStateName());
             
             animations.put(state, new Animation(
-                1f/anim.framesLength,
+                1f/anim.time,
                 AnimationHelper.getTextureRegions(anim.frames, spritesheetTexture),
-                Animation.PlayMode.LOOP));
+                AnimationHelper.getPlayMode(anim.playMode)));
         }
-        
     }
     
     

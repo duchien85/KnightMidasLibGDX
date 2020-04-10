@@ -4,52 +4,53 @@
          "name":"heroIdle",
          "time":8,
          "framesLength":8,
+		 "playMode":2,
          "frames":[
             {
                "x":0,
-               "y":0,
+               "y":64,
                "width":64,
                "height":64
             },
             {
                "x":64,
-               "y":0,
+               "y":64,
                "width":64,
                "height":64
             },
             {
                "x":128,
-               "y":0,
+               "y":64,
                "width":64,
                "height":64
             },
             {
                "x":192,
-               "y":0,
+               "y":64,
                "width":64,
                "height":64
             },
             {
                "x":256,
-               "y":0,
+               "y":64,
                "width":64,
                "height":64
             },
             {
                "x":320,
-               "y":0,
+               "y":64,
                "width":64,
                "height":64
             },
             {
                "x":384,
-               "y":0,
+               "y":64,
                "width":64,
                "height":64
             },
             {
                "x":448,
-               "y":0,
+               "y":64,
                "width":64,
                "height":64
             }
@@ -57,24 +58,63 @@
 	  },
 	  {
          "name":"heroWalk",
-         "time":8,
-         "framesLength":10,
+         "time":10,
+         "framesLength":3,
+		 "playMode":2,
          "frames":[
             {
-               "x":512,
+               "x":1472,
                "y":0,
                "width":64,
                "height":64
             },
             {
-               "x":576,
+               "x":1536,
                "y":0,
                "width":64,
                "height":64
             },
             {
-               "x":640,
+               "x":1600,
                "y":0,
+               "width":64,
+               "height":64
+            }
+         ]
+	  },
+	  {
+         "name":"heroStab",
+         "time":12,
+         "framesLength":5,
+		 "playMode":2,
+         "frames":[
+            {
+               "x":896,
+               "y":64,
+               "width":64,
+               "height":64
+            },
+            {
+               "x":960,
+               "y":64,
+               "width":64,
+               "height":64
+            },
+            {
+               "x":1024,
+               "y":64,
+               "width":64,
+               "height":64
+            },
+            {
+               "x":1088,
+               "y":64,
+               "width":64,
+               "height":64
+            },
+            {
+               "x":1152,
+               "y":64,
                "width":64,
                "height":64
             }

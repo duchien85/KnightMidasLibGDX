@@ -14,6 +14,8 @@ public class Main extends Game {
     public static final float WORLD_WIDTH = 30;
     public static final float WORLD_HEIGHT = 30;
     
+    public static final float GRAVITY = -10f;
+    
 
     @Override
     public void create() {

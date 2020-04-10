@@ -16,6 +16,7 @@ public class PlayScreen implements Screen {
     
     protected Main main;
     private Player p1;
+    private Snake s1;
     
     //Graphics
     private final OrthographicCamera camera;
@@ -42,8 +43,12 @@ public class PlayScreen implements Screen {
         mapRenderer = new OrthogonalTiledMapRenderer(level.getMap(), Main.METERS_PER_PIXEL);
         
         //Objects
-        p1 = new Player();
+        p1 = new Player(16, 15);
         p1.actualLevel = level;
+        
+        s1 = new Snake(21, 9);
+        s1.actualLevel = level;
+        level.snakes.add(s1);
     }
 
     @Override
@@ -58,6 +63,7 @@ public class PlayScreen implements Screen {
         
         //Objects
         p1.update(dt);
+        s1.update(dt);
         
         //Level
         mapRenderer.setView(camera);
@@ -75,6 +81,7 @@ public class PlayScreen implements Screen {
         main.batch.setProjectionMatrix(camera.combined);
         main.batch.begin();
         p1.render(main.batch);
+        s1.render(main.batch);
         main.batch.end();
         
         renderDebug();
@@ -83,27 +90,51 @@ public class PlayScreen implements Screen {
     private void renderDebug() {
         
         //Player Parts
-        /*
-        for (Rectangle part : p1.parts) {
-            debugRenderer.setProjectionMatrix(camera.combined);
-            debugRenderer.begin(ShapeRenderer.ShapeType.Line);
-            debugRenderer.setColor(Color.RED);
-            debugRenderer.rect(part.x, part.y, part.width, part.height);
-            debugRenderer.end();
-        }
-        */
+        Color[] playerColors = new Color[] {
+            Color.RED, Color.BLUE,
+            Color.GREEN, Color.YELLOW, Color.YELLOW
+        };
         
+        int i = 0;
+        for (Rectangle part : p1.parts) {
+            if (i != 2 && i != 3 && i != 4) {
+                debugRenderer.setProjectionMatrix(camera.combined);
+                debugRenderer.begin(ShapeRenderer.ShapeType.Line);
+                debugRenderer.setColor(playerColors[i]);
+                debugRenderer.rect(part.x, part.y, part.width, part.height);
+                debugRenderer.end();
+            }
+            i++;
+        }
+        
+        debugRenderer.setProjectionMatrix(camera.combined);
+        debugRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        debugRenderer.setColor(Color.WHITE);
+        debugRenderer.circle(p1.position.x, p1.position.y, 1/8f);
+        debugRenderer.end();
+        
+        
+        //Snake Parts
+        /*
         debugRenderer.setProjectionMatrix(camera.combined);
         debugRenderer.begin(ShapeRenderer.ShapeType.Line);
         debugRenderer.setColor(Color.RED);
-        debugRenderer.rect(p1.body.x, p1.body.y, p1.body.width, p1.body.height);
+        debugRenderer.rect(s1.body.x, s1.body.y, s1.body.width, s1.body.height);
         debugRenderer.end();
         
         debugRenderer.setProjectionMatrix(camera.combined);
         debugRenderer.begin(ShapeRenderer.ShapeType.Line);
-        debugRenderer.setColor(Color.BLUE);
-        debugRenderer.rect(p1.feet.x, p1.feet.y, p1.feet.width, p1.feet.height);
+        debugRenderer.setColor(Color.GREEN);
+        debugRenderer.rect(s1.spriteArea.x, s1.spriteArea.y, s1.spriteArea.width, s1.spriteArea.height);
         debugRenderer.end();
+
+        debugRenderer.setProjectionMatrix(camera.combined);
+        debugRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        debugRenderer.setColor(Color.WHITE);
+        debugRenderer.circle(s1.position.x, s1.position.y, 1/8f);
+        debugRenderer.end();
+        */
+        
     }
 
     @Override
@@ -111,6 +142,7 @@ public class PlayScreen implements Screen {
         
         //Objects
         p1.dispose();
+        s1.dispose();
         
         //Level
         level.dispose();

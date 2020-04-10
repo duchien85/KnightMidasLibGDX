@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.3.2" orientation="orthogonal" renderorder="right-down" compressionlevel="-1" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="4">
+<map version="1.2" tiledversion="1.3.2" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="18">
  <tileset firstgid="1" source="platform_tileset.tsx"/>
  <layer id="1" name="background" width="30" height="30">
   <data encoding="base64" compression="zlib">
-   eJxjYBgFo2AUjIJRMApGwSigLdBiRGB6Ai5GBB4J9noz4sYwcIKBoeE4ENPLXhh+AbTzOZ3tRVdHinspwQNl70DjgfLnSAlfWmEAX1xFqg==
+   eAHtkWEKgDAIhe1vR2lH6VLdrm5Sx0ipB0u22IMgBgrmXOanL5GwUCAUCAVCgVAgFOhNgTSIMP7FfgwvrzX2pPPC2VnyXux5VC6c4bIcXw+mRcZ8HzaflVdzzLGJLKs6cpZRqq8x8/tDmfvNLfWwOzPEK3s+/Xfzy772DoY6n+PeYqp4XtN69hyft/bpre6vPf/i9vZ/avOel/ZWRg==
   </data>
  </layer>
  <layer id="2" name="foreground" width="30" height="30">
   <data encoding="base64" compression="zlib">
-   eJzt0FkOwUAcx/GZF9zDeg1BgsRyBdSaWI5gqeWNK9i9cQtuwjF8X0TTtGgq9WB+ySeZTGf+v3SEUFFRUVFRUfnHXITon+F1743O6w96A1L0/fBJb7tj9EURQdijbs1i7/H/VueDCH2hV3d4PoGki764FCJlI40MsvJ5Psc6jwKK0n7uu5S4W0YFGqqooY4GmmgZ5rdZd9BFz0XvgLtDjKBjjAmmmL2YO+fbwkXvkrsrrLHBFjvscTDMNb/3kfXJRe+nMb+3irPcAQsvI2E=
+   eAHt0k1OQjEQwPFhg94DUK9B0ERIFK4gAioJwhFQUdnhFURRdnAL/NZbqKjAEfxvhrw06aMk7Ogkv3Toxxs6qYgP3wHfAd8B3wHfAd+BZezAg0h9gHnuno2I5DArwvZ9UfNzzrpVatYc6obtW41IfQVRzPr/ut6i5pVD3bB9G9RbxxoSjrV71Ow71LXtK+gFAqPePzA1TWNk8ekvkUfyJzzjBa94wzs+YIuGbcEyn2J+M7D2TT7ED37xhxHGmMCMJD3asthmPo0MNHbId5GFyzvWc+a4x/k89lFAESUc4BBHKEOjQn6MKlzesZ4zxxPOn+IMDZzjApdowhYt1lzese38NefbuMEtOrjDPbrQMPtte5+6f1Gj2e9FfXdZvvMPhxY5MQ==
   </data>
  </layer>
  <objectgroup id="3" name="walls">
   <object id="1" x="0" y="368" width="128" height="64"/>
   <object id="2" x="224" y="368" width="32" height="64"/>
+  <object id="15" x="256" y="272" width="32" height="64"/>
+  <object id="16" x="288" y="336" width="128" height="32"/>
+  <object id="17" x="416" y="272" width="32" height="64"/>
  </objectgroup>
 </map>

@@ -8,6 +8,7 @@ public class CustomAnimation {
     protected String name;
     public float time;
     public int framesLength;
+    public int playMode;
     public Array<CustomAnimationFrame> frames;
 }
 

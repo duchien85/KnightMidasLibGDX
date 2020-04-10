@@ -1,10 +1,11 @@
 
-package game;
+package game.animations;
 
 public enum PlayerState {
     
     HERO_IDLE("heroIdle"),
-    HERO_WALK("heroWalk");
+    HERO_WALK("heroWalk"),
+    HERO_STAB("heroStab");
     
     private final String stateName;
 

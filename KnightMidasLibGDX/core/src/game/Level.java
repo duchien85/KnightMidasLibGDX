@@ -15,14 +15,14 @@ public class Level implements Disposable {
     protected final TmxMapLoader mapLoader;
     protected final TiledMap map;
     
-    private ArrayList<GameObject> entities;
+    protected ArrayList<Snake> snakes;
     public ArrayList<Rectangle> walls;
 
     public Level(String mapPath) {
         this.mapLoader = new TmxMapLoader();
         this.map = this.mapLoader.load(mapPath);
         
-        entities = new ArrayList<>();
+        snakes = new ArrayList<>();
         createWalls();
     }
     
