@@ -15,23 +15,28 @@ import game.animations.CustomAnimation;
 import game.animations.CustomAnimationBundle;
 import game.animations.CustomAnimationJsonReader;
 import java.util.HashMap;
-import java.util.List;
 
 public class Snake extends GameObject implements Disposable {
 
     //Logic
     private boolean walkingLeft = true;
+    private boolean tookDamage = false;
+    
+    //Health
+    private float health = 10f;
+    protected float damage = 3f;
+    protected float iFrames = 0;
     
     //Physics
     protected Rectangle body, spriteArea;
     protected Vector2 position;
-    private float xSpeed, moveSpeed = 5f;
+    private float xSpeed, moveSpeed = 4f;
     private float gravity = Main.GRAVITY;
     
     //Render
     protected Sprite sprite;
     private float spriteWidthPixels = 64, spriteHeightPixels = 64;
-    private Texture spritesheetTexture;
+    private Texture spritesheet;
     private HashMap<SnakeState, Animation<TextureRegion>> animations;
     
     protected TextureRegion actualRegion;
@@ -46,6 +51,19 @@ public class Snake extends GameObject implements Disposable {
     }
     
     public void update(float dt) {
+        
+        //Health
+        if (tookDamage)
+            iFrames += dt;
+        else
+            iFrames = 0;
+        
+        if (iFrames >= 1f) {
+            tookDamage = false;
+            iFrames = 0;
+            actualState = SnakeState.SNAKE_WALK;
+        }
+        
         
         //Physics
         xSpeed = moveSpeed;
@@ -88,9 +106,19 @@ public class Snake extends GameObject implements Disposable {
     }
     
     public void render(SpriteBatch batch) {
-        sprite.draw(batch);
+        if (health > 0)
+            sprite.draw(batch);
     }
     
+    
+    public void getHurt(float damage) {
+        if (!tookDamage) {
+            health -= damage;
+            actualState = SnakeState.SNAKE_HURT;
+        }
+        
+        tookDamage = true;
+    }
     
     public void createBody(float posX, float posY) {
         
@@ -109,7 +137,7 @@ public class Snake extends GameObject implements Disposable {
         sprite.setBounds(spriteArea.x, spriteArea.y, spriteArea.width, spriteArea.height);
         sprite.setScale(1, 1);
         
-        spritesheetTexture = new Texture(StringPaths.texture_Snake);
+        spritesheet = new Texture(StringPaths.texture_Snake);
         
         animations = new HashMap<>();
         
@@ -121,7 +149,7 @@ public class Snake extends GameObject implements Disposable {
             
             animations.put(state, new Animation(
                 1f/anim.time,
-                AnimationHelper.getTextureRegions(anim.frames, spritesheetTexture),
+                AnimationHelper.getTextureRegions(anim.frames, spritesheet),
                 AnimationHelper.getPlayMode(anim.playMode)));
         }
     }
@@ -129,6 +157,6 @@ public class Snake extends GameObject implements Disposable {
     
     @Override
     public void dispose() {
-        
+        spritesheet.dispose();
     }
 }

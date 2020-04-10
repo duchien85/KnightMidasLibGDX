@@ -27,19 +27,28 @@ public class Player extends GameObject implements Disposable {
     
     //Logic
     private boolean isGrounded = false;
-    private boolean isAttacking = false;
+    private boolean tookDamage = false;
+    private boolean isSpawning = true;
+    protected float iFrames = 0;
+    
+    //Health
+    private float health = 20f;
+    private float swordDamage = 6f;
     
     //Physics
-    protected Rectangle body, feet, spriteArea, mainHurtbox, swordHitbox;
     protected Vector2 position;
+    protected Rectangle body, feet, spriteArea, mainHurtbox, swordHitbox;
     protected List<Rectangle> parts;
-    private float xSpeed, ySpeed, moveSpeed = 7.5f, jumpSpeed = 7.5f;
+    private float xSpeed, ySpeed,
+            moveSpeed = 7.5f, jumpSpeed = 7.5f,
+            knockbackSpeedX = 3f, knockbackSpeedY = 2f;
     private float gravity = Main.GRAVITY;
+    private Vector2 futurePositionOffset;
     
     //Render
     protected Sprite sprite;
     private float spriteWidthPixels = 64, spriteHeightPixels = 64;
-    private Texture spritesheetTexture;
+    private Texture spritesheet;
     private HashMap<PlayerState, Animation<TextureRegion>> animations;
     
     protected TextureRegion actualRegion;
@@ -49,14 +58,33 @@ public class Player extends GameObject implements Disposable {
 
     
     public Player(float posX, float posY) {
-        
-        createBody(posX, posY);
-        createRender();
+        createBodies(posX, posY);
+        createAnimations();
     }
     
     public void update(float dt) {
         
-        //Input
+        getInput();
+        
+        iFrames(dt);
+        
+        changeState();
+        
+        physics(dt);
+        
+        collisions();
+        
+        sprite(dt);
+    }
+    
+    public void render(SpriteBatch batch) {
+        if (health > 0)
+            sprite.draw(batch);
+    }
+    
+    
+    private void getInput() {
+        
         up = Gdx.input.isKeyPressed(Input.Keys.UP);
         right = Gdx.input.isKeyPressed(Input.Keys.RIGHT);
         down = Gdx.input.isKeyPressed(Input.Keys.DOWN);
@@ -64,40 +92,88 @@ public class Player extends GameObject implements Disposable {
         attack = Gdx.input.isKeyPressed(Input.Keys.X);
         jump = Gdx.input.isKeyPressed(Input.Keys.Z);
         
-        
-        //Logic
         if (left && right)
             left = right = false;
         
-        isAttacking = attack;
+        if ((up && down) || down)
+            up = false;
+    }
+    
+    private void iFrames(float dt) {
         
-        if (attack)
-            actualState = PlayerState.HERO_STAB;
-        else if (!(right || left))
-            actualState = PlayerState.HERO_IDLE;
+        if (tookDamage)
+            iFrames += dt;
         else
+            iFrames = 0;
+        
+        if (iFrames >= 1f) {
+            iFrames = 0;
+            tookDamage = false;
+        }
+    }
+    
+    private void changeState() {
+        PlayerState previousState = actualState;
+        
+        if (isSpawning) {
+            actualState = PlayerState.HERO_SPAWN;
+            if (animations.get(actualState).isAnimationFinished(animationTimer))
+                isSpawning = false;
+        }
+        else if (tookDamage && iFrames > 0) {
+            actualState = PlayerState.HERO_HURT;
+            if (iFrames < 0.3f)
+                up = right = down = left = false;
+        }
+        else if (down)
+            actualState = PlayerState.HERO_DUCK;
+        else if (!isGrounded)
+            actualState = PlayerState.HERO_JUMP;
+        else if (attack)
+            actualState = PlayerState.HERO_STAB;
+        else if (right || left)
             actualState = PlayerState.HERO_WALK;
+        else
+            actualState = PlayerState.HERO_IDLE;
+        
+        if (actualState != previousState)
+            animationTimer = 0;
+    }
+    
+    private void physics(float dt) {
+        
+        if (!tookDamage)
+            xSpeed = moveSpeed;
+        else if (iFrames < 0.1f)
+            xSpeed = knockbackSpeedX;
+        futurePositionOffset = new Vector2(0, 0);
         
         
-        //Physics
-        xSpeed = moveSpeed;
-        Vector2 futurePositionOffset = new Vector2(0, 0);
-        
-        if (right) {
+        if (tookDamage) {
             futurePositionOffset.x += xSpeed * dt;
+        } else if (right) {
+            if (!down)
+                futurePositionOffset.x += xSpeed * dt;
             flipX = false;
         } else if (left) {
-            futurePositionOffset.x -= xSpeed * dt;
+            if (!down)
+                futurePositionOffset.x -= xSpeed * dt;
             flipX = true;
         }
         
-        if (up && isGrounded) {
+        
+        if (tookDamage) {
+            ySpeed = knockbackSpeedY;
+        } else if (up && isGrounded) {
             isGrounded = false;
             ySpeed = jumpSpeed;
         }
         
         ySpeed += gravity * dt;
         futurePositionOffset.y += ySpeed * dt;
+    }
+    
+    private void collisions() {
         
         boolean bodyCollided = false;
         boolean feetCollided = false;
@@ -108,6 +184,10 @@ public class Player extends GameObject implements Disposable {
         Rectangle futureFeetPosition = new Rectangle(
                 feet.x + futurePositionOffset.x, feet.y + futurePositionOffset.y,
                 feet.width, feet.height);
+        
+        Rectangle futureHurtboxPosition = new Rectangle(
+                mainHurtbox.x + futurePositionOffset.x, mainHurtbox.y + futurePositionOffset.y,
+                mainHurtbox.width, mainHurtbox.height);
         
         Rectangle futureSwordPosition = new Rectangle(
                 swordHitbox.x + futurePositionOffset.x, swordHitbox.y + futurePositionOffset.y,
@@ -121,8 +201,14 @@ public class Player extends GameObject implements Disposable {
         }
         
         for (Snake snake : actualLevel.snakes) {
-            if (isAttacking && futureSwordPosition.overlaps(snake.body)) {
-                System.out.println("Acertou a cobra!!");
+            if (attack && futureSwordPosition.overlaps(snake.body)) {
+                if (snake.iFrames == 0)
+                    snake.getHurt(swordDamage);
+            }
+            
+            if (futureHurtboxPosition.overlaps(snake.body)) {
+                if (iFrames == 0)
+                    getHurt(snake.damage);
             }
         }
         
@@ -149,9 +235,10 @@ public class Player extends GameObject implements Disposable {
             isGrounded = true;
             ySpeed = 0;
         }
+    }
+    
+    private void sprite(float dt) {
         
-        
-        //Render
         animationTimer += dt;
         actualRegion = animations.get(actualState).getKeyFrame(animationTimer);
         sprite.setRegion(actualRegion);
@@ -159,12 +246,15 @@ public class Player extends GameObject implements Disposable {
         sprite.setFlip(flipX, flipY);
     }
     
-    public void render(SpriteBatch batch) {
-        sprite.draw(batch);
+    
+    private void getHurt(float damage) {
+        actualState = PlayerState.HERO_HURT;
+        health -= damage;
+        tookDamage = true;
     }
     
     
-    public void createBody(float posX, float posY) {
+    public void createBodies(float posX, float posY) {
         parts = new ArrayList<Rectangle>();
         
         position = new Vector2(posX, posY);
@@ -190,13 +280,13 @@ public class Player extends GameObject implements Disposable {
         parts.add(swordHitbox);
     }
     
-    public void createRender() {
+    public void createAnimations() {
         
         sprite = new Sprite();
         sprite.setBounds(spriteArea.x, spriteArea.y, spriteArea.width, spriteArea.height);
         sprite.setScale(1, 1);
         
-        spritesheetTexture = new Texture(StringPaths.texture_Hero);
+        spritesheet = new Texture(StringPaths.texture_Hero);
         
         animations = new HashMap<>();
         
@@ -208,14 +298,13 @@ public class Player extends GameObject implements Disposable {
             
             animations.put(state, new Animation(
                 1f/anim.time,
-                AnimationHelper.getTextureRegions(anim.frames, spritesheetTexture),
+                AnimationHelper.getTextureRegions(anim.frames, spritesheet),
                 AnimationHelper.getPlayMode(anim.playMode)));
         }
     }
     
-    
     @Override
     public void dispose() {
-        spritesheetTexture.dispose();
+        spritesheet.dispose();
     }
 }

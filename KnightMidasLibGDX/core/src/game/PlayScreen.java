@@ -43,7 +43,7 @@ public class PlayScreen implements Screen {
         mapRenderer = new OrthogonalTiledMapRenderer(level.getMap(), Main.METERS_PER_PIXEL);
         
         //Objects
-        p1 = new Player(16, 15);
+        p1 = new Player(16, 13);
         p1.actualLevel = level;
         
         s1 = new Snake(21, 9);
@@ -72,8 +72,8 @@ public class PlayScreen implements Screen {
     
     private void renderGraphics() {
         
-        //Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClearColor(0.69f, 0.47f, 0.21f, 1);
+        Gdx.gl.glClearColor(0, 0, 0, 1);
+        //Gdx.gl.glClearColor(0.69f, 0.47f, 0.21f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         
         mapRenderer.render();
@@ -97,7 +97,7 @@ public class PlayScreen implements Screen {
         
         int i = 0;
         for (Rectangle part : p1.parts) {
-            if (i != 2 && i != 3 && i != 4) {
+            if (i != 0 && i != 1 && i != 2 && i != 4) {
                 debugRenderer.setProjectionMatrix(camera.combined);
                 debugRenderer.begin(ShapeRenderer.ShapeType.Line);
                 debugRenderer.setColor(playerColors[i]);
@@ -107,21 +107,22 @@ public class PlayScreen implements Screen {
             i++;
         }
         
+        /*
         debugRenderer.setProjectionMatrix(camera.combined);
         debugRenderer.begin(ShapeRenderer.ShapeType.Filled);
         debugRenderer.setColor(Color.WHITE);
         debugRenderer.circle(p1.position.x, p1.position.y, 1/8f);
         debugRenderer.end();
-        
+        */
         
         //Snake Parts
-        /*
         debugRenderer.setProjectionMatrix(camera.combined);
         debugRenderer.begin(ShapeRenderer.ShapeType.Line);
         debugRenderer.setColor(Color.RED);
         debugRenderer.rect(s1.body.x, s1.body.y, s1.body.width, s1.body.height);
         debugRenderer.end();
         
+        /*
         debugRenderer.setProjectionMatrix(camera.combined);
         debugRenderer.begin(ShapeRenderer.ShapeType.Line);
         debugRenderer.setColor(Color.GREEN);
