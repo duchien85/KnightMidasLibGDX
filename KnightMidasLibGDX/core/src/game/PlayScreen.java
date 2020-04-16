@@ -22,6 +22,7 @@ public class PlayScreen implements Screen {
     private final OrthographicCamera camera;
     private final Viewport viewport;
     private ShapeRenderer debugRenderer;
+    private Hud hud;
     
     //Level
     private Level level;
@@ -37,16 +38,17 @@ public class PlayScreen implements Screen {
         viewport = new FitViewport(Main.WORLD_WIDTH, Main.WORLD_HEIGHT, camera);
         camera.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0);
         debugRenderer = new ShapeRenderer();
+        hud = new Hud(main.batch);
         
         //Level
         level = new Level(StringPaths.tiled_ExampleLevel);
         mapRenderer = new OrthogonalTiledMapRenderer(level.getMap(), Main.METERS_PER_PIXEL);
         
         //Objects
-        p1 = new Player(16, 13);
+        p1 = new Player(0, 7);
         p1.actualLevel = level;
         
-        s1 = new Snake(21, 9);
+        s1 = new Snake(16, 7);
         s1.actualLevel = level;
         level.snakes.add(s1);
     }
@@ -85,6 +87,9 @@ public class PlayScreen implements Screen {
         main.batch.end();
         
         renderDebug();
+        
+        main.batch.setProjectionMatrix(hud.stage.getCamera().combined);
+        hud.stage.draw();
     }
     
     private void renderDebug() {
@@ -97,12 +102,14 @@ public class PlayScreen implements Screen {
         
         int i = 0;
         for (Rectangle part : p1.parts) {
-            if (i != 0 && i != 1 && i != 2 && i != 4) {
+            if (i != 0 && i != 1 && i != 2) {
+                /*
                 debugRenderer.setProjectionMatrix(camera.combined);
                 debugRenderer.begin(ShapeRenderer.ShapeType.Line);
                 debugRenderer.setColor(playerColors[i]);
                 debugRenderer.rect(part.x, part.y, part.width, part.height);
                 debugRenderer.end();
+                */
             }
             i++;
         }
@@ -116,13 +123,13 @@ public class PlayScreen implements Screen {
         */
         
         //Snake Parts
+        /*
         debugRenderer.setProjectionMatrix(camera.combined);
         debugRenderer.begin(ShapeRenderer.ShapeType.Line);
         debugRenderer.setColor(Color.RED);
         debugRenderer.rect(s1.body.x, s1.body.y, s1.body.width, s1.body.height);
         debugRenderer.end();
         
-        /*
         debugRenderer.setProjectionMatrix(camera.combined);
         debugRenderer.begin(ShapeRenderer.ShapeType.Line);
         debugRenderer.setColor(Color.GREEN);
@@ -140,6 +147,9 @@ public class PlayScreen implements Screen {
 
     @Override
     public void dispose() {
+        
+        //Graphic
+        hud.dispose();
         
         //Objects
         p1.dispose();

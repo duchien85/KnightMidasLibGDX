@@ -23,7 +23,7 @@ import java.util.List;
 public class Player extends GameObject implements Disposable {
     
     //Input
-    private boolean up, left, right, down, attack, jump;
+    private boolean left, right, down, attack, jump;
     
     //Logic
     private boolean isGrounded = false;
@@ -39,11 +39,12 @@ public class Player extends GameObject implements Disposable {
     protected Vector2 position;
     protected Rectangle body, feet, spriteArea, mainHurtbox, swordHitbox;
     protected List<Rectangle> parts;
+    private float jumpHeight = 5.5f, jumpHalfTime = 0.65f;
+    private float jumpSpeed, gravity;
     private float xSpeed, ySpeed,
-            moveSpeed = 7.5f, jumpSpeed = 7.5f,
-            knockbackSpeedX = 3f, knockbackSpeedY = 2f;
-    private float gravity = Main.GRAVITY;
+            moveSpeed = 7.5f, knockbackSpeedX = 3f, knockbackSpeedY = 2f;
     private Vector2 futurePositionOffset;
+    private float jumpTimer = 1f;
     
     //Render
     protected Sprite sprite;
@@ -52,7 +53,7 @@ public class Player extends GameObject implements Disposable {
     private HashMap<PlayerState, Animation<TextureRegion>> animations;
     
     protected TextureRegion actualRegion;
-    protected PlayerState actualState = PlayerState.HERO_IDLE;
+    protected PlayerState actualState = PlayerState.IDLE;
     private boolean flipX = false, flipY = false;
     private float animationTimer = 0;
 
@@ -60,6 +61,9 @@ public class Player extends GameObject implements Disposable {
     public Player(float posX, float posY) {
         createBodies(posX, posY);
         createAnimations();
+        
+        gravity = (-2*jumpHeight) / (jumpHalfTime * jumpHalfTime);
+        jumpSpeed = 2 * jumpHeight / jumpHalfTime;
     }
     
     public void update(float dt) {
@@ -85,22 +89,24 @@ public class Player extends GameObject implements Disposable {
     
     private void getInput() {
         
-        up = Gdx.input.isKeyPressed(Input.Keys.UP);
+        right = down = left = attack = jump = false;
+        
         right = Gdx.input.isKeyPressed(Input.Keys.RIGHT);
         down = Gdx.input.isKeyPressed(Input.Keys.DOWN);
         left = Gdx.input.isKeyPressed(Input.Keys.LEFT);
         attack = Gdx.input.isKeyPressed(Input.Keys.X);
-        jump = Gdx.input.isKeyPressed(Input.Keys.Z);
+        jump = Gdx.input.isKeyJustPressed(Input.Keys.Z);
         
         if (left && right)
             left = right = false;
         
-        if ((up && down) || down)
-            up = false;
+        if ((jump && down) || down)
+            jump = false;
     }
     
     private void iFrames(float dt) {
         
+        //iFrames
         if (tookDamage)
             iFrames += dt;
         else
@@ -116,25 +122,25 @@ public class Player extends GameObject implements Disposable {
         PlayerState previousState = actualState;
         
         if (isSpawning) {
-            actualState = PlayerState.HERO_SPAWN;
+            actualState = PlayerState.SPAWN;
             if (animations.get(actualState).isAnimationFinished(animationTimer))
                 isSpawning = false;
         }
         else if (tookDamage && iFrames > 0) {
-            actualState = PlayerState.HERO_HURT;
-            if (iFrames < 0.3f)
-                up = right = down = left = false;
+            actualState = PlayerState.HURT;
+            if (iFrames < 0.5f)
+                jump = right = down = left = false;
         }
-        else if (down)
-            actualState = PlayerState.HERO_DUCK;
+        else if (down && isGrounded)
+            actualState = PlayerState.DUCK;
         else if (!isGrounded)
-            actualState = PlayerState.HERO_JUMP;
+            actualState = PlayerState.JUMP;
         else if (attack)
-            actualState = PlayerState.HERO_STAB;
-        else if (right || left)
-            actualState = PlayerState.HERO_WALK;
+            actualState = PlayerState.STAB;
+        else if ((right || left) && !attack)
+            actualState = PlayerState.WALK;
         else
-            actualState = PlayerState.HERO_IDLE;
+            actualState = PlayerState.IDLE;
         
         if (actualState != previousState)
             animationTimer = 0;
@@ -142,32 +148,37 @@ public class Player extends GameObject implements Disposable {
     
     private void physics(float dt) {
         
-        if (!tookDamage)
+        //Setting speeds
+        if (actualState != PlayerState.HURT)
             xSpeed = moveSpeed;
-        else if (iFrames < 0.1f)
+        else if (iFrames < 0.5f)
             xSpeed = knockbackSpeedX;
         futurePositionOffset = new Vector2(0, 0);
         
         
-        if (tookDamage) {
+        if (actualState == PlayerState.HURT) {
+            ySpeed = knockbackSpeedY;
+        } else if (jump && isGrounded) {
+            isGrounded = false;
+            ySpeed = jumpSpeed;
+        }
+        
+        
+        //Calculating position
+        if (actualState == PlayerState.HURT) {
             futurePositionOffset.x += xSpeed * dt;
+            
         } else if (right) {
-            if (!down)
+            if (!down && !attack)
                 futurePositionOffset.x += xSpeed * dt;
             flipX = false;
+            
         } else if (left) {
-            if (!down)
+            if (!down && !attack)
                 futurePositionOffset.x -= xSpeed * dt;
             flipX = true;
         }
         
-        
-        if (tookDamage) {
-            ySpeed = knockbackSpeedY;
-        } else if (up && isGrounded) {
-            isGrounded = false;
-            ySpeed = jumpSpeed;
-        }
         
         ySpeed += gravity * dt;
         futurePositionOffset.y += ySpeed * dt;
@@ -177,6 +188,8 @@ public class Player extends GameObject implements Disposable {
         
         boolean bodyCollided = false;
         boolean feetCollided = false;
+        Vector2 bodyCollisionVector = Vector2.Zero;
+        Vector2 feetCollisionVector = Vector2.Zero;
         Rectangle futureBodyPosition = new Rectangle(
                 body.x + futurePositionOffset.x, body.y + futurePositionOffset.y,
                 body.width, body.height);
@@ -194,8 +207,15 @@ public class Player extends GameObject implements Disposable {
                 swordHitbox.width, swordHitbox.height);
         
         for (Rectangle wall : actualLevel.walls) {
-            if (futureBodyPosition.overlaps(wall)) bodyCollided = true;
-            if (futureFeetPosition.overlaps(wall)) feetCollided = true;
+            if (futureBodyPosition.overlaps(wall)) {
+                bodyCollided = true;
+                bodyCollisionVector = new Vector2(1, 1);
+            }
+            
+            if (futureFeetPosition.overlaps(wall)) {
+                feetCollided = true;
+                feetCollisionVector = new Vector2(1, 1);
+            }
             
             if (bodyCollided && feetCollided) break;
         }
@@ -248,7 +268,7 @@ public class Player extends GameObject implements Disposable {
     
     
     private void getHurt(float damage) {
-        actualState = PlayerState.HERO_HURT;
+        actualState = PlayerState.HURT;
         health -= damage;
         tookDamage = true;
     }

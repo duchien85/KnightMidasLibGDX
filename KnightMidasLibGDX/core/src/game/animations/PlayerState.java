@@ -3,13 +3,13 @@ package game.animations;
 
 public enum PlayerState {
     
-    HERO_IDLE("heroIdle"),
-    HERO_WALK("heroWalk"),
-    HERO_STAB("heroStab"),
-    HERO_HURT("heroHurt"),
-    HERO_JUMP("heroJump"),
-    HERO_DUCK("heroDuck"),
-    HERO_SPAWN("heroSpawn");
+    IDLE("heroIdle"),
+    WALK("heroWalk"),
+    STAB("heroStab"),
+    HURT("heroHurt"),
+    JUMP("heroJump"),
+    DUCK("heroDuck"),
+    SPAWN("heroSpawn");
     
     private final String stateName;
 

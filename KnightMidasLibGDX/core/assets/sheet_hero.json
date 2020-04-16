@@ -84,7 +84,7 @@
 	  },
 	  {
          "name":"heroStab",
-         "time":12,
+         "time":16,
          "framesLength":5,
 		 "playMode":2,
          "frames":[
@@ -154,7 +154,7 @@
 	  },
 	  {
          "name":"heroJump",
-         "time":8,
+         "time":10,
          "framesLength":5,
 		 "playMode":0,
          "frames":[
