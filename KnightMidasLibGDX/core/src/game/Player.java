@@ -23,7 +23,7 @@ import java.util.List;
 public class Player extends GameObject implements Disposable {
     
     //Input
-    private boolean left, right, down, attack, jump;
+    protected boolean left, right, down, attack, jump;
     
     //Logic
     private boolean isGrounded = false;
@@ -32,7 +32,7 @@ public class Player extends GameObject implements Disposable {
     protected float iFrames = 0;
     
     //Health
-    private float health = 20f;
+    protected float health = 20f;
     private float swordDamage = 6f;
     
     //Physics
@@ -41,8 +41,8 @@ public class Player extends GameObject implements Disposable {
     protected List<Rectangle> parts;
     private float jumpHeight = 5.5f, jumpHalfTime = 0.65f;
     private float jumpSpeed, gravity;
-    private float xSpeed, ySpeed,
-            moveSpeed = 7.5f, knockbackSpeedX = 3f, knockbackSpeedY = 2f;
+    protected float xSpeed, ySpeed;
+    private float moveSpeed = 7.5f, knockbackSpeedX = 3f, knockbackSpeedY = 2f;
     private Vector2 futurePositionOffset;
     private float jumpTimer = 1f;
     

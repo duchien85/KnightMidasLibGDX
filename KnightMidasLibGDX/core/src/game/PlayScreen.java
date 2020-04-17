@@ -15,8 +15,8 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 public class PlayScreen implements Screen {
     
     protected Main main;
-    private Player p1;
-    private Snake s1;
+    protected Player p1;
+    protected Snake s1;
     
     //Graphics
     private final OrthographicCamera camera;
@@ -66,6 +66,9 @@ public class PlayScreen implements Screen {
         //Objects
         p1.update(dt);
         s1.update(dt);
+        
+        //Hud
+        hud.update(this);
         
         //Level
         mapRenderer.setView(camera);

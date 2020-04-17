@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.3.2" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="30">
+<map version="1.2" tiledversion="1.3.2" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="31">
  <tileset firstgid="1" source="platform_tileset.tsx"/>
  <imagelayer id="5" name="bluesky" offsetx="0" offsety="84">
   <image source="bluesky.png" width="480" height="480"/>
@@ -19,7 +19,7 @@
  </layer>
  <layer id="2" name="foreground" width="30" height="30">
   <data encoding="base64" compression="zlib">
-   eAHl1WlOFEEUwPFmTVgV5QIsmqCiIFyAZYYlUTYvoA5gSFRQDlAgDItRQbkAiyyeBAXFS7ivR/D/mCnz6HSnlxG/8JKfU12v6r1yuiZ05TsmiQQ60YF2ONlg7OQVOE4+ClCIIhSjBKUoQzkqUIk+9vRjAO5gzpAzoxjBMFJwr5PnGmrVog71OIfzaMAFXMQlNCJMjNNnDmnMZntWsLESp3AaVTiDs6gGax32OPNYwCIeI9dopMBlXEETmnEVLWiFjh36vXL1DDq33q/H13i4jj70YwCDGMINBEWUc+tad3m4h/sYxwQe4CEmERRhz93DXRA2njB4imdYwjKe4wVWEBS5njuovl8+7rnlvGFjV31PYfdEXRf2e45a9yStf81/9g328A4HeI/jjM8U/4Kv+Iaf+IXfIGc+4SM+gCmHZ5n/L1Gc5/33QjdP6YeQ417qIqeYibF7jL44Evade71rm5P7sI+3yOVe7GbfoRzAvnP7rmXOhs3JffiOH9D3wp7L68xSIy3/qLD3SE3FGtpzeZ1ZCrr72iZh7pFdG+fTr2+cWlH26L5xfgdReum1um+c34Gu5Tdu43fSjg50IoEkZF7G2WfDpzh87uYTRvax9m9O9nVlcod5xsYvf5N1t3AbKQxjBH7zo+TuZBivfTrP2Ljr2vwUNabxCDOYRRp+83Pk5jOM1z6dZ2zcdW1e15d+XvP6PMeRP8l9V/nO17CODbzEJrawjX+Z13X/ALyI3Tw=
+   eAHl1WlOFEEUwPEGlEQUBOECuJC4DIpwAXY10QH1AuIAhgQdkAMU27AYwYUL4C4nQcHlEiouIEfg/5gp8+x0p6t7xC+85OdU16t6r5yuCd2lnulCJzrQjjZ4hWDslZR5XinKcAAHUY5DqMBhHEElqpBmTw964Q/mDDkziAH0IwP/Onmup9ZxnMBJnEIDTuMMzuIcUnCJLH1mkMN0oWclG6twFNWowTHUog6s9djjzWIO83iAYiNFgUacxwU04SKa0QIdb+m34usZdW69X4+v8nANafSgF9dxAzcRFXHOrWsN83AX95DFCEZxH2OICtdzX+YuCBsPGSxgEY/wGE/wFEuIimLPHVU/LJ/03HJe11hV35PrnrjrXL/nuHX30/p3/GffYw0f8QmfsZexQfHv+IGf2MJvbIOc+Yav+AKmPJ5l/r9EeUnw3wvdPKMfHMdXqIuiYirB7iH64q+w7zzoXduc3Id1fEAx92K18A7lAPad23ctczZsTu7DL2xC3wt7rqAzS42c/KPC3iM1lWhozxV0Zino72ubuNwjuzbJZ1jfJLXi7NF9k/wO4vTSa3Vf199BvS7gMG7ld9KGdnSgE12QeRkXng2fYvf5Ep8wso+1f3Kyrzuf280zNmH5W6zrw21k0I8BhM0PkruTZ4L26Txj469r8+PUmMAkpjCNHMLmZ8jN5pmgfTrP2Pjr2ryuL/2C5vV59iK/n/su850/w3O8wEu8wmu8wb/M67o7MifdXQ==
   </data>
  </layer>
  <objectgroup id="3" name="walls">
@@ -29,5 +29,6 @@
   <object id="27" x="96" y="256" width="64" height="32"/>
   <object id="28" x="208" y="256" width="128" height="32"/>
   <object id="29" x="336" y="272" width="64" height="32"/>
+  <object id="30" x="192" y="352" width="16" height="16"/>
  </objectgroup>
 </map>
