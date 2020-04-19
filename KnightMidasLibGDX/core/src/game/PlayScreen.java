@@ -105,15 +105,14 @@ public class PlayScreen implements Screen {
         
         int i = 0;
         for (Rectangle part : p1.parts) {
-            if (i != 0 && i != 1 && i != 2) {
-                /*
+            if (i < 2) {
                 debugRenderer.setProjectionMatrix(camera.combined);
                 debugRenderer.begin(ShapeRenderer.ShapeType.Line);
                 debugRenderer.setColor(playerColors[i]);
                 debugRenderer.rect(part.x, part.y, part.width, part.height);
                 debugRenderer.end();
-                */
             }
+            
             i++;
         }
         

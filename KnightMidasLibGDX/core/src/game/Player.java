@@ -26,7 +26,8 @@ public class Player extends GameObject implements Disposable {
     protected boolean left, right, down, attack, jump;
     
     //Logic
-    private boolean isGrounded = false;
+    protected boolean isJumping = false;
+    protected boolean canJump = true;
     private boolean tookDamage = false;
     private boolean isSpawning = true;
     protected float iFrames = 0;
@@ -39,12 +40,16 @@ public class Player extends GameObject implements Disposable {
     protected Vector2 position;
     protected Rectangle body, feet, spriteArea, mainHurtbox, swordHitbox;
     protected List<Rectangle> parts;
-    private float jumpHeight = 5.5f, jumpHalfTime = 0.65f;
-    private float jumpSpeed, gravity;
-    protected float xSpeed, ySpeed;
-    private float moveSpeed = 7.5f, knockbackSpeedX = 3f, knockbackSpeedY = 2f;
     private Vector2 futurePositionOffset;
+    protected float xSpeed, ySpeed;
+    
+    private float jumpHeight = 5.5f, jumpHalfDurationTime = 0.65f,
+            timeToMaxWalkSpeed = 4 / 30f;
+    private float moveSpeed = 7.5f;
+    private Vector2 knockbackSpeed = new Vector2(3f, 2f);
     private float jumpTimer = 1f;
+    
+    private float jumpSpeed, gravity, xAcceleration;
     
     //Render
     protected Sprite sprite;
@@ -62,8 +67,9 @@ public class Player extends GameObject implements Disposable {
         createBodies(posX, posY);
         createAnimations();
         
-        gravity = (-2*jumpHeight) / (jumpHalfTime * jumpHalfTime);
-        jumpSpeed = 2 * jumpHeight / jumpHalfTime;
+        gravity = (-2*jumpHeight) / (jumpHalfDurationTime * jumpHalfDurationTime);
+        jumpSpeed = 2 * jumpHeight / jumpHalfDurationTime;
+        xAcceleration = moveSpeed / timeToMaxWalkSpeed;
     }
     
     public void update(float dt) {
@@ -95,7 +101,7 @@ public class Player extends GameObject implements Disposable {
         down = Gdx.input.isKeyPressed(Input.Keys.DOWN);
         left = Gdx.input.isKeyPressed(Input.Keys.LEFT);
         attack = Gdx.input.isKeyPressed(Input.Keys.X);
-        jump = Gdx.input.isKeyJustPressed(Input.Keys.Z);
+        jump = Gdx.input.isKeyPressed(Input.Keys.Z);
         
         if (left && right)
             left = right = false;
@@ -131,9 +137,9 @@ public class Player extends GameObject implements Disposable {
             if (iFrames < 0.5f)
                 jump = right = down = left = false;
         }
-        else if (down && isGrounded)
+        else if (down && !isJumping)
             actualState = PlayerState.DUCK;
-        else if (!isGrounded)
+        else if (isJumping)
             actualState = PlayerState.JUMP;
         else if (attack)
             actualState = PlayerState.STAB;
@@ -149,36 +155,52 @@ public class Player extends GameObject implements Disposable {
     private void physics(float dt) {
         
         //Setting speeds
-        if (actualState != PlayerState.HURT)
-            xSpeed = moveSpeed;
-        else if (iFrames < 0.5f)
-            xSpeed = knockbackSpeedX;
+        if (actualState == PlayerState.HURT && iFrames < 0.5f)
+            xSpeed = knockbackSpeed.x;
         futurePositionOffset = new Vector2(0, 0);
         
         
         if (actualState == PlayerState.HURT) {
-            ySpeed = knockbackSpeedY;
-        } else if (jump && isGrounded) {
-            isGrounded = false;
+            ySpeed = knockbackSpeed.y;
+        } else if (jump && !isJumping && canJump) {
+            isJumping = true;
+            canJump = false;
             ySpeed = jumpSpeed;
         }
         
         
         //Calculating position
         if (actualState == PlayerState.HURT) {
+                float deltaSpeed =  xAcceleration * dt;
+            if (xSpeed + deltaSpeed <= moveSpeed)
+                xSpeed += deltaSpeed;
+            else
+                xSpeed = moveSpeed;
             futurePositionOffset.x += xSpeed * dt;
             
         } else if (right) {
-            if (!down && !attack)
+            if (!down && !attack) {
+                float deltaSpeed =  xAcceleration * dt;
+                if (xSpeed + deltaSpeed <= moveSpeed)
+                    xSpeed += deltaSpeed;
+                else
+                    xSpeed = moveSpeed;
                 futurePositionOffset.x += xSpeed * dt;
+            }
             flipX = false;
             
         } else if (left) {
-            if (!down && !attack)
+            if (!down && !attack) {
+                float deltaSpeed =  xAcceleration * dt;
+                if (xSpeed + deltaSpeed <= moveSpeed)
+                    xSpeed += deltaSpeed;
+                else
+                    xSpeed = moveSpeed;
                 futurePositionOffset.x -= xSpeed * dt;
+            }
             flipX = true;
-        }
-        
+        } else
+            xSpeed = 0;
         
         ySpeed += gravity * dt;
         futurePositionOffset.y += ySpeed * dt;
@@ -249,10 +271,13 @@ public class Player extends GameObject implements Disposable {
             mainHurtbox.y += futurePositionOffset.y;
             swordHitbox.y += futurePositionOffset.y;
             
-            isGrounded = false;
+            isJumping = true;
             
         } else {
-            isGrounded = true;
+            isJumping = false;
+            if (!jump && !isJumping && !canJump)
+                canJump = true;
+            //lógica do canJump
             ySpeed = 0;
         }
     }
