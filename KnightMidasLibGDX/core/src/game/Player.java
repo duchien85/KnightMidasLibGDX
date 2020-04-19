@@ -28,6 +28,7 @@ public class Player extends GameObject implements Disposable {
     //Logic
     protected boolean isJumping = false;
     protected boolean canJump = true;
+    protected boolean smallJump = false;
     private boolean tookDamage = false;
     private boolean isSpawning = true;
     protected float iFrames = 0;
@@ -164,8 +165,16 @@ public class Player extends GameObject implements Disposable {
             ySpeed = knockbackSpeed.y;
         } else if (jump && !isJumping && canJump) {
             isJumping = true;
+            smallJump = false;
             canJump = false;
             ySpeed = jumpSpeed;
+        }
+        
+        if (isJumping && !canJump && ySpeed > 0) {
+            if (!jump && !smallJump) {
+                smallJump = true;
+                ySpeed = 0;
+            }
         }
         
         
@@ -275,6 +284,7 @@ public class Player extends GameObject implements Disposable {
             
         } else {
             isJumping = false;
+            smallJump = false;
             if (!jump && !isJumping && !canJump)
                 canJump = true;
             //lógica do canJump

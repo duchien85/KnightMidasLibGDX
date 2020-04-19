@@ -25,9 +25,9 @@ public class Hud implements Disposable {
     
     private Label labelPosX, labelPosY,
             labelSpeedX, labelSpeedY,
-            labelPlayerHealth, labelPlayerState;
+            labelPlayerHealth, labelSnakeHealth, labelPlayerState, labelIFrames;
     private Label labelDown, labelRight, labelLeft, labelAttack,
-            labelJump, labelCanJump, labelIsJumping, labelIFrames;
+            labelJump, labelCanJump, labelIsJumping, labelSmallJump;
 
     public Hud(SpriteBatch batch) {
         this.viewport = new FitViewport(Main.V_WIDTH, Main.V_HEIGHT, new OrthographicCamera());
@@ -65,6 +65,7 @@ public class Hud implements Disposable {
         labelSpeedX = new Label("X Speed: ", labelStyle);
         labelSpeedY = new Label("Y Speed: ", labelStyle);
         labelPlayerHealth = new Label("Health: ", labelStyle);
+        labelSnakeHealth = new Label("Snake Health: ", labelStyle);
         labelPlayerState = new Label("State: ", labelStyle);
         labelIFrames = new Label("iFrames: ", labelStyle);
         
@@ -75,6 +76,7 @@ public class Hud implements Disposable {
         labelJump = new Label("jump: false", labelStyle);
         labelCanJump = new Label("canJump: false", labelStyle);
         labelIsJumping = new Label("isJumping: false", labelStyle);
+        labelSmallJump = new Label("smallJump: false", labelStyle);
         
         
         rootTable.add(labelIFrames).expandX().left().padLeft(5);
@@ -101,8 +103,12 @@ public class Hud implements Disposable {
         rootTable.add(labelCanJump).expandX().right().padRight(5);
         rootTable.row();
         
-        rootTable.add(labelPlayerState).expandX().left().padLeft(5);
+        rootTable.add(labelSnakeHealth).expandX().left().padLeft(5);
         rootTable.add(labelIsJumping).expandX().right().padRight(5);
+        rootTable.row();
+        
+        rootTable.add(labelPlayerState).expandX().left().padLeft(5);
+        rootTable.add(labelSmallJump).expandX().right().padRight(5);
     }
     
     protected void update(PlayScreen screen) {
@@ -111,6 +117,7 @@ public class Hud implements Disposable {
         labelSpeedX.setText("X Speed: " + screen.p1.xSpeed);
         labelSpeedY.setText("Y Speed: " + screen.p1.ySpeed);
         labelPlayerHealth.setText("Health: " + screen.p1.health);
+        labelSnakeHealth.setText("Snake Health: " + screen.s1.health);
         labelPlayerState.setText("State: " + screen.p1.actualState);
         labelIFrames.setText("iFrames: " + screen.p1.iFrames);
         
@@ -121,6 +128,7 @@ public class Hud implements Disposable {
         labelJump.setText("jump: " + screen.p1.jump);
         labelCanJump.setText("canJump: " + screen.p1.canJump);
         labelIsJumping.setText("isJumping: " + screen.p1.isJumping);
+        labelSmallJump.setText("smallJump: " + screen.p1.smallJump);
     }
 
     @Override

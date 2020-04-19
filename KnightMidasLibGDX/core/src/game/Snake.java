@@ -23,7 +23,7 @@ public class Snake extends GameObject implements Disposable {
     private boolean tookDamage = false;
     
     //Health
-    private float health = 10f;
+    protected float health = 10f;
     protected float damage = 3f;
     protected float iFrames = 0;
     
