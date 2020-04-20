@@ -4,7 +4,8 @@ package game.animations;
 public enum PlayerState {
     
     IDLE("heroIdle"),
-    WALK("heroWalk"),
+    HALF_WALK("heroHalfWalk"),
+    FULL_WALK("heroFullWalk"),
     STAB("heroStab"),
     HURT("heroHurt"),
     JUMP("heroJump"),

@@ -47,11 +47,11 @@ public class Player extends GameObject implements Disposable {
     private Vector2 futurePositionOffset;
     protected float xSpeed, ySpeed;
     
-    private float jumpHeight = 5.5f, jumpHalfDurationTime = 0.65f,
-            timeToMaxWalkSpeed = 4 / 30f;
-    private float moveSpeed = 7.5f;
+    private float jumpHeight = 6f, jumpHalfDurationTime = 0.65f,
+            timeToRunSpeed = 6 / 30f;
+    private float walkSpeed = 5f, runSpeed = 7.5f;
     private Vector2 knockbackSpeed = new Vector2(3f, 2f);
-    private float jumpTimer = 1f;
+    private float walkTimer = 0f, jumpTimer = 1f;
     
     private float jumpSpeed, gravity, xAcceleration;
     
@@ -73,7 +73,7 @@ public class Player extends GameObject implements Disposable {
         
         gravity = (-2*jumpHeight) / (jumpHalfDurationTime * jumpHalfDurationTime);
         jumpSpeed = 2 * jumpHeight / jumpHalfDurationTime;
-        xAcceleration = moveSpeed / timeToMaxWalkSpeed;
+        xAcceleration = runSpeed / timeToRunSpeed;
     }
     
     public void update(float dt) {
@@ -147,11 +147,16 @@ public class Player extends GameObject implements Disposable {
             actualState = PlayerState.JUMP;
         else if (attack)
             actualState = PlayerState.STAB;
-        else if ((right || left) && !attack)
-            actualState = PlayerState.WALK;
+        else if ((right || left) && !attack) {
+            if (walkTimer < timeToRunSpeed)
+                actualState = PlayerState.HALF_WALK;
+            else
+                actualState = PlayerState.FULL_WALK;
+        }
         else
             actualState = PlayerState.IDLE;
         
+        System.out.println(actualState);
         if (actualState != previousState)
             animationTimer = 0;
     }
@@ -184,35 +189,37 @@ public class Player extends GameObject implements Disposable {
         //Calculating position
         if (actualState == PlayerState.HURT) {
                 float deltaSpeed =  xAcceleration * dt;
-            if (xSpeed + deltaSpeed <= moveSpeed)
+            if (xSpeed + deltaSpeed <= runSpeed)
                 xSpeed += deltaSpeed;
             else
-                xSpeed = moveSpeed;
+                xSpeed = runSpeed;
             futurePositionOffset.x += xSpeed * dt;
             
         } else if (right) {
             if (!down && !attack) {
-                float deltaSpeed =  xAcceleration * dt;
-                if (xSpeed + deltaSpeed <= moveSpeed)
-                    xSpeed += deltaSpeed;
+                walkTimer += dt;
+                if (walkTimer < timeToRunSpeed)
+                    xSpeed = walkSpeed;
                 else
-                    xSpeed = moveSpeed;
+                    xSpeed = runSpeed;
                 futurePositionOffset.x += xSpeed * dt;
             }
             flipX = false;
             
         } else if (left) {
             if (!down && !attack) {
-                float deltaSpeed =  xAcceleration * dt;
-                if (xSpeed + deltaSpeed <= moveSpeed)
-                    xSpeed += deltaSpeed;
+                walkTimer += dt;
+                if (walkTimer < timeToRunSpeed)
+                    xSpeed = walkSpeed;
                 else
-                    xSpeed = moveSpeed;
+                    xSpeed = runSpeed;
                 futurePositionOffset.x -= xSpeed * dt;
             }
             flipX = true;
-        } else
+        } else {
+            walkTimer = 0;
             xSpeed = 0;
+        }
         
         ySpeed += gravity * dt;
         futurePositionOffset.y += ySpeed * dt;
@@ -253,7 +260,6 @@ public class Player extends GameObject implements Disposable {
             
             if (futureBodyPosition.overlaps(wall)) {
                 
-                System.out.println(bodyTop + " e " + wallBottom);
                 if (bodyTop >= wallBottom && bodyTop <= wallTop) bodyTopCollided = true;
                 if (bodyLeft >= wallLeft && bodyLeft <= wallRight) bodyLeftCollided = true;
                 if (bodyRight <= wallRight && bodyRight >= wallLeft) bodyRightCollided = true;
@@ -290,7 +296,10 @@ public class Player extends GameObject implements Disposable {
         if (!bodyRightCollided && !bodyLeftCollided)
             moveOnXAxis();
         
-        if (feetCollided || bodyTopCollided) {
+        if (bodyTopCollided)
+            ySpeed = 0;
+        
+        if (feetCollided) {
             isJumping = false;
             smallJump = false;
             if (!jump && !isJumping && !canJump)
@@ -344,8 +353,8 @@ public class Player extends GameObject implements Disposable {
         body = new Rectangle(posX + UnitHelper.pixelsToMeters(24), posY + UnitHelper.pixelsToMeters(2),
                 UnitHelper.pixelsToMeters(16), UnitHelper.pixelsToMeters(24));
         
-        feet = new Rectangle(posX + UnitHelper.pixelsToMeters(26), posY,
-                UnitHelper.pixelsToMeters(12), UnitHelper.pixelsToMeters(2));
+        feet = new Rectangle(posX + UnitHelper.pixelsToMeters(26), posY + UnitHelper.pixelsToMeters(1),
+                UnitHelper.pixelsToMeters(12), UnitHelper.pixelsToMeters(3));
         
         spriteArea = new Rectangle(posX, posY, 
                 UnitHelper.pixelsToMeters(spriteWidthPixels), UnitHelper.pixelsToMeters(spriteHeightPixels));

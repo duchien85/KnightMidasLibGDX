@@ -77,8 +77,8 @@ public class PlayScreen implements Screen {
     
     private void renderGraphics() {
         
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        //Gdx.gl.glClearColor(0.69f, 0.47f, 0.21f, 1);
+        //Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClearColor(0.69f, 0.47f, 0.21f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         
         mapRenderer.render();
@@ -125,6 +125,7 @@ public class PlayScreen implements Screen {
         }
         
         //Walls
+        /*
         for (Rectangle wall : level.walls) {
             debugRenderer.setProjectionMatrix(camera.combined);
             debugRenderer.begin(ShapeRenderer.ShapeType.Line);
@@ -132,6 +133,7 @@ public class PlayScreen implements Screen {
             debugRenderer.rect(wall.x, wall.y, wall.width, wall.height);
             debugRenderer.end();
         }
+        */
         
         //Snake Parts
         /*

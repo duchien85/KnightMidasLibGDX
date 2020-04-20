@@ -57,8 +57,34 @@
          ]
 	  },
 	  {
-         "name":"heroWalk",
-         "time":10,
+         "name":"heroHalfWalk",
+         "time":8,
+         "framesLength":3,
+		 "playMode":2,
+         "frames":[
+            {
+               "x":1472,
+               "y":0,
+               "width":64,
+               "height":64
+            },
+            {
+               "x":1536,
+               "y":0,
+               "width":64,
+               "height":64
+            },
+            {
+               "x":1600,
+               "y":0,
+               "width":64,
+               "height":64
+            }
+         ]
+	  },
+	  {
+         "name":"heroFullWalk",
+         "time":12,
          "framesLength":3,
 		 "playMode":2,
          "frames":[
@@ -166,18 +192,6 @@
             },
             {
                "x":1280,
-               "y":64,
-               "width":64,
-               "height":64
-            },
-            {
-               "x":1344,
-               "y":64,
-               "width":64,
-               "height":64
-            },
-            {
-               "x":1408,
                "y":64,
                "width":64,
                "height":64
