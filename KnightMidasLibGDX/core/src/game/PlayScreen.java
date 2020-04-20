@@ -45,7 +45,7 @@ public class PlayScreen implements Screen {
         mapRenderer = new OrthogonalTiledMapRenderer(level.getMap(), Main.METERS_PER_PIXEL);
         
         //Objects
-        p1 = new Player(0, 7);
+        p1 = new Player(0, 7.1875f);
         p1.actualLevel = level;
         
         s1 = new Snake(16, 7);
@@ -98,6 +98,14 @@ public class PlayScreen implements Screen {
     private void renderDebug() {
         
         //Player Parts
+        /*
+        debugRenderer.setProjectionMatrix(camera.combined);
+        debugRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        debugRenderer.setColor(Color.WHITE);
+        debugRenderer.circle(p1.position.x, p1.position.y, 1/8f);
+        debugRenderer.end();
+        */
+        
         Color[] playerColors = new Color[] {
             Color.RED, Color.BLUE,
             Color.GREEN, Color.YELLOW, Color.YELLOW
@@ -105,7 +113,7 @@ public class PlayScreen implements Screen {
         
         int i = 0;
         for (Rectangle part : p1.parts) {
-            if (i < 2) {
+            if (i < -1) {
                 debugRenderer.setProjectionMatrix(camera.combined);
                 debugRenderer.begin(ShapeRenderer.ShapeType.Line);
                 debugRenderer.setColor(playerColors[i]);
@@ -116,13 +124,14 @@ public class PlayScreen implements Screen {
             i++;
         }
         
-        /*
-        debugRenderer.setProjectionMatrix(camera.combined);
-        debugRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        debugRenderer.setColor(Color.WHITE);
-        debugRenderer.circle(p1.position.x, p1.position.y, 1/8f);
-        debugRenderer.end();
-        */
+        //Walls
+        for (Rectangle wall : level.walls) {
+            debugRenderer.setProjectionMatrix(camera.combined);
+            debugRenderer.begin(ShapeRenderer.ShapeType.Line);
+            debugRenderer.setColor(Color.YELLOW);
+            debugRenderer.rect(wall.x, wall.y, wall.width, wall.height);
+            debugRenderer.end();
+        }
         
         //Snake Parts
         /*

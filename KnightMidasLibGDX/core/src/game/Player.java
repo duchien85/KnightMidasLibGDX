@@ -33,6 +33,9 @@ public class Player extends GameObject implements Disposable {
     private boolean isSpawning = true;
     protected float iFrames = 0;
     
+    protected boolean bodyTopCollided = false,bodyLeftCollided = false,
+                bodyRightCollided = false, feetBottomCollided = false;
+    
     //Health
     protected float health = 20f;
     private float swordDamage = 6f;
@@ -219,8 +222,6 @@ public class Player extends GameObject implements Disposable {
         
         boolean bodyCollided = false;
         boolean feetCollided = false;
-        Vector2 bodyCollisionVector = Vector2.Zero;
-        Vector2 feetCollisionVector = Vector2.Zero;
         Rectangle futureBodyPosition = new Rectangle(
                 body.x + futurePositionOffset.x, body.y + futurePositionOffset.y,
                 body.width, body.height);
@@ -237,16 +238,36 @@ public class Player extends GameObject implements Disposable {
                 swordHitbox.x + futurePositionOffset.x, swordHitbox.y + futurePositionOffset.y,
                 swordHitbox.width, swordHitbox.height);
         
+        bodyTopCollided = bodyLeftCollided = bodyRightCollided = feetBottomCollided = false;
         for (Rectangle wall : actualLevel.walls) {
+            
+            float feetBottom = futureFeetPosition.y;
+            float bodyTop = futureBodyPosition.y + futureBodyPosition.height;
+            float bodyLeft = futureBodyPosition.x;
+            float bodyRight = futureBodyPosition.x + futureBodyPosition.width;
+            
+            float wallTop = wall.y + wall.height;
+            float wallLeft = wall.x;
+            float wallRight = wall.x + wall.width;
+            float wallBottom = wall.y;
+            
             if (futureBodyPosition.overlaps(wall)) {
-                bodyCollided = true;
-                bodyCollisionVector = new Vector2(1, 1);
+                
+                System.out.println(bodyTop + " e " + wallBottom);
+                if (bodyTop >= wallBottom && bodyTop <= wallTop) bodyTopCollided = true;
+                if (bodyLeft >= wallLeft && bodyLeft <= wallRight) bodyLeftCollided = true;
+                if (bodyRight <= wallRight && bodyRight >= wallLeft) bodyRightCollided = true;
+                
+                if (bodyTopCollided || bodyLeftCollided || bodyRightCollided)
+                    bodyCollided = true;
             }
             
             if (futureFeetPosition.overlaps(wall)) {
-                feetCollided = true;
-                feetCollisionVector = new Vector2(1, 1);
-            }
+                if (feetBottom >= wallBottom && feetBottom <= wallTop) {
+                    feetBottomCollided = true;
+                    feetCollided = true;
+                }
+            }  
             
             if (bodyCollided && feetCollided) break;
         }
@@ -263,32 +284,21 @@ public class Player extends GameObject implements Disposable {
             }
         }
         
-        if (!bodyCollided) {
-            position.x += futurePositionOffset.x;
-            body.x += futurePositionOffset.x;
-            feet.x += futurePositionOffset.x;
-            spriteArea.x += futurePositionOffset.x;
-            mainHurtbox.x += futurePositionOffset.x;
-            swordHitbox.x += futurePositionOffset.x;
-        }
+        if (!feetBottomCollided && !bodyTopCollided)
+            moveOnYAxis();
         
-        if (!feetCollided) {
-            position.y += futurePositionOffset.y;
-            body.y += futurePositionOffset.y;
-            feet.y += futurePositionOffset.y;
-            spriteArea.y += futurePositionOffset.y;
-            mainHurtbox.y += futurePositionOffset.y;
-            swordHitbox.y += futurePositionOffset.y;
-            
-            isJumping = true;
-            
-        } else {
+        if (!bodyRightCollided && !bodyLeftCollided)
+            moveOnXAxis();
+        
+        if (feetCollided || bodyTopCollided) {
             isJumping = false;
             smallJump = false;
             if (!jump && !isJumping && !canJump)
                 canJump = true;
-            //lógica do canJump
             ySpeed = 0;
+            
+        } else {
+            isJumping = true;
         }
     }
     
@@ -302,6 +312,24 @@ public class Player extends GameObject implements Disposable {
     }
     
     
+    private void moveOnXAxis() {
+        position.x = UnitHelper.roundMeters(position.x + futurePositionOffset.x);
+        body.x = UnitHelper.roundMeters(body.x + futurePositionOffset.x);
+        feet.x = UnitHelper.roundMeters(feet.x + futurePositionOffset.x);
+        spriteArea.x = UnitHelper.roundMeters(spriteArea.x + futurePositionOffset.x);
+        mainHurtbox.x = UnitHelper.roundMeters(mainHurtbox.x + futurePositionOffset.x);
+        swordHitbox.x = UnitHelper.roundMeters(swordHitbox.x + futurePositionOffset.x);
+    }
+    
+    private void moveOnYAxis() {
+        position.y = UnitHelper.roundMeters(position.y + futurePositionOffset.y);
+        body.y = UnitHelper.roundMeters(body.y + futurePositionOffset.y);
+        feet.y = UnitHelper.roundMeters(feet.y + futurePositionOffset.y);
+        spriteArea.y = UnitHelper.roundMeters(spriteArea.y + futurePositionOffset.y);
+        mainHurtbox.y = UnitHelper.roundMeters(mainHurtbox.y + futurePositionOffset.y);
+        swordHitbox.y = UnitHelper.roundMeters(swordHitbox.y + futurePositionOffset.y);  
+    }
+    
     private void getHurt(float damage) {
         actualState = PlayerState.HURT;
         health -= damage;
@@ -313,11 +341,11 @@ public class Player extends GameObject implements Disposable {
         parts = new ArrayList<Rectangle>();
         
         position = new Vector2(posX, posY);
-        body = new Rectangle(posX + UnitHelper.pixelsToMeters(24), posY + UnitHelper.pixelsToMeters(1),
+        body = new Rectangle(posX + UnitHelper.pixelsToMeters(24), posY + UnitHelper.pixelsToMeters(2),
                 UnitHelper.pixelsToMeters(16), UnitHelper.pixelsToMeters(24));
         
-        feet = new Rectangle(posX + UnitHelper.pixelsToMeters(25), posY,
-                UnitHelper.pixelsToMeters(14), UnitHelper.pixelsToMeters(1));
+        feet = new Rectangle(posX + UnitHelper.pixelsToMeters(26), posY,
+                UnitHelper.pixelsToMeters(12), UnitHelper.pixelsToMeters(2));
         
         spriteArea = new Rectangle(posX, posY, 
                 UnitHelper.pixelsToMeters(spriteWidthPixels), UnitHelper.pixelsToMeters(spriteHeightPixels));

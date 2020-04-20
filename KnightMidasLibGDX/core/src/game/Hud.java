@@ -26,8 +26,9 @@ public class Hud implements Disposable {
     private Label labelPosX, labelPosY,
             labelSpeedX, labelSpeedY,
             labelPlayerHealth, labelSnakeHealth, labelPlayerState, labelIFrames;
-    private Label labelDown, labelRight, labelLeft, labelAttack,
-            labelJump, labelCanJump, labelIsJumping, labelSmallJump;
+    //private Label labelDown, labelRight, labelLeft, labelAttack;
+    private Label labelBodyRight, labelBodyLeft, labelBodyTop, labelFeetBottom;
+    private Label labelJump, labelCanJump, labelIsJumping, labelSmallJump;
 
     public Hud(SpriteBatch batch) {
         this.viewport = new FitViewport(Main.V_WIDTH, Main.V_HEIGHT, new OrthographicCamera());
@@ -69,10 +70,15 @@ public class Hud implements Disposable {
         labelPlayerState = new Label("State: ", labelStyle);
         labelIFrames = new Label("iFrames: ", labelStyle);
         
-        labelDown = new Label("down: false", labelStyle);
-        labelLeft = new Label("left: false", labelStyle);
-        labelRight = new Label("right: false", labelStyle);
-        labelAttack = new Label("attack: false", labelStyle);
+        //labelDown = new Label("down: false", labelStyle);
+        //labelLeft = new Label("left: false", labelStyle);
+        //labelRight = new Label("right: false", labelStyle);
+        //labelAttack = new Label("attack: false", labelStyle);
+        
+        labelFeetBottom = new Label("feetBottom: false", labelStyle);
+        labelBodyLeft = new Label("bodyLeft: false", labelStyle);
+        labelBodyRight = new Label("bodyRight: false", labelStyle);
+        labelBodyTop = new Label("bodyTop: false", labelStyle);
         labelJump = new Label("jump: false", labelStyle);
         labelCanJump = new Label("canJump: false", labelStyle);
         labelIsJumping = new Label("isJumping: false", labelStyle);
@@ -80,19 +86,23 @@ public class Hud implements Disposable {
         
         
         rootTable.add(labelIFrames).expandX().left().padLeft(5);
-        rootTable.add(labelDown).expandX().right().padRight(5);
+        //rootTable.add(labelDown).expandX().right().padRight(5);
+        rootTable.add(labelFeetBottom).expandX().right().padRight(5);
         rootTable.row();
         
         rootTable.add(labelPosX).expandX().left().padLeft(5);
-        rootTable.add(labelLeft).expandX().right().padRight(5);
+        //rootTable.add(labelLeft).expandX().right().padRight(5);
+        rootTable.add(labelBodyLeft).expandX().right().padRight(5);
         rootTable.row();
         
         rootTable.add(labelPosY).expandX().left().padLeft(5);
-        rootTable.add(labelRight).expandX().right().padRight(5);
+        //rootTable.add(labelRight).expandX().right().padRight(5);
+        rootTable.add(labelBodyRight).expandX().right().padRight(5);
         rootTable.row();
         
         rootTable.add(labelSpeedX).expandX().left().padLeft(5);
-        rootTable.add(labelAttack).expandX().right().padRight(5);
+        //rootTable.add(labelAttack).expandX().right().padRight(5);
+        rootTable.add(labelBodyTop).expandX().right().padRight(5);
         rootTable.row();
         
         rootTable.add(labelSpeedY).expandX().left().padLeft(5);
@@ -121,10 +131,14 @@ public class Hud implements Disposable {
         labelPlayerState.setText("State: " + screen.p1.actualState);
         labelIFrames.setText("iFrames: " + screen.p1.iFrames);
         
-        labelDown.setText("down: " + screen.p1.down);
-        labelLeft.setText("left: " + screen.p1.left);
-        labelRight.setText("right: " + screen.p1.right);
-        labelAttack.setText("attack: " + screen.p1.attack);
+        //labelDown.setText("down: " + screen.p1.down);
+        //labelLeft.setText("left: " + screen.p1.left);
+        //labelRight.setText("right: " + screen.p1.right);
+        //labelAttack.setText("attack: " + screen.p1.attack);
+        labelFeetBottom.setText("feetBottom: " + screen.p1.feetBottomCollided);
+        labelBodyRight.setText("bodyRight: " + screen.p1.bodyRightCollided);
+        labelBodyLeft.setText("bodyLeft: " + screen.p1.bodyLeftCollided);
+        labelBodyTop.setText("bodyTop: " + screen.p1.bodyTopCollided);
         labelJump.setText("jump: " + screen.p1.jump);
         labelCanJump.setText("canJump: " + screen.p1.canJump);
         labelIsJumping.setText("isJumping: " + screen.p1.isJumping);

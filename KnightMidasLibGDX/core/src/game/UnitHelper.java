@@ -11,4 +11,13 @@ public abstract class UnitHelper {
     public static float metersToPixels(float meters) {
         return meters * Main.PPM;
     }
+    
+    
+    //Round meters
+    public static float roundMeters(float meters) {
+        float pixels = metersToPixels(meters);
+        float roundedPixels = Math.round(pixels);
+        
+        return pixelsToMeters(roundedPixels);
+    }
 }
