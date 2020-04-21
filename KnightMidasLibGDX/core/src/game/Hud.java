@@ -31,7 +31,7 @@ public class Hud implements Disposable {
     private Label labelJump, labelCanJump, labelIsJumping, labelSmallJump;
 
     public Hud(SpriteBatch batch) {
-        this.viewport = new FitViewport(Main.V_WIDTH, Main.V_HEIGHT, new OrthographicCamera());
+        this.viewport = new FitViewport(Main.DISPLAY_PIXEL_WIDTH, Main.DISPLAY_PIXELS_HEIGHT, new OrthographicCamera());
         stage = new Stage(this.viewport, batch);
         
         font();

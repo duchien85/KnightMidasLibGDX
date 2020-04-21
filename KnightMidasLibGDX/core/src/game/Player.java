@@ -156,7 +156,7 @@ public class Player extends GameObject implements Disposable {
         else
             actualState = PlayerState.IDLE;
         
-        System.out.println(actualState);
+        //System.out.println(actualState + " e " + isJumping);
         if (actualState != previousState)
             animationTimer = 0;
     }

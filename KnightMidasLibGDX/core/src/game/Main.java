@@ -11,11 +11,14 @@ public class Main extends Game {
     public static final float PIXELS_PER_METER = 16;
     public static final float METERS_PER_PIXEL = 1 / PPM;
     
-    public static final float WORLD_WIDTH = 30;
-    public static final float WORLD_HEIGHT = 30;
+    public static final float DISPLAY_WIDTH = 30;
+    public static final float DISPLAY_HEIGHT = 30;
     
-    public static final float V_WIDTH = WORLD_WIDTH * PPM;
-    public static final float V_HEIGHT = WORLD_HEIGHT * PPM;
+    public static final float DISPLAY_PIXEL_WIDTH = DISPLAY_WIDTH * PPM;
+    public static final float DISPLAY_PIXELS_HEIGHT = DISPLAY_HEIGHT * PPM;
+    
+    public static final float WORLD_WIDTH = 150;
+    public static final float WORLD_HEIGHT = 30;
     
     public static final float GRAVITY = -10f;
     

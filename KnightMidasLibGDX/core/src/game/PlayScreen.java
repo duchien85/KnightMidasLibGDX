@@ -2,13 +2,16 @@
 package game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -20,9 +23,14 @@ public class PlayScreen implements Screen {
     
     //Graphics
     private final OrthographicCamera camera;
+    private final float cameraWidth = 30, cameraHeight = 30;
     private final Viewport viewport;
     private ShapeRenderer debugRenderer;
+    
+    //Hud
     private Hud hud;
+    private boolean debugEnabled = false;
+    private final int debugPanelKey = Input.Keys.NUMPAD_9;
     
     //Level
     private Level level;
@@ -35,8 +43,8 @@ public class PlayScreen implements Screen {
         
         //Graphics - Render
         camera = new OrthographicCamera();
-        viewport = new FitViewport(Main.WORLD_WIDTH, Main.WORLD_HEIGHT, camera);
-        camera.position.set(viewport.getWorldWidth() / 2, viewport.getWorldHeight() / 2, 0);
+        viewport = new FitViewport(Main.DISPLAY_WIDTH, Main.DISPLAY_HEIGHT, camera);
+        camera.position.set(15, 15, 0);
         debugRenderer = new ShapeRenderer();
         hud = new Hud(main.batch);
         
@@ -48,7 +56,7 @@ public class PlayScreen implements Screen {
         p1 = new Player(0, 7.1875f);
         p1.actualLevel = level;
         
-        s1 = new Snake(16, 7);
+        s1 = new Snake(16, -7);
         s1.actualLevel = level;
         level.snakes.add(s1);
     }
@@ -67,7 +75,13 @@ public class PlayScreen implements Screen {
         p1.update(dt);
         s1.update(dt);
         
+        //Camera
+        camera.position.x = MathUtils.clamp(p1.body.x + p1.body.width / 2,
+                15, Main.WORLD_WIDTH - 15);
+        camera.update();
+        
         //Hud
+        if (Gdx.input.isKeyJustPressed(debugPanelKey)) debugEnabled = !debugEnabled;
         hud.update(this);
         
         //Level
@@ -77,8 +91,8 @@ public class PlayScreen implements Screen {
     
     private void renderGraphics() {
         
-        //Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClearColor(0.69f, 0.47f, 0.21f, 1);
+        //Gdx.gl.glClearColor(0.69f, 0.47f, 0.21f, 1);
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         
         mapRenderer.render();
@@ -91,8 +105,10 @@ public class PlayScreen implements Screen {
         
         renderDebug();
         
-        main.batch.setProjectionMatrix(hud.stage.getCamera().combined);
-        hud.stage.draw();
+        if (debugEnabled) {
+            main.batch.setProjectionMatrix(hud.stage.getCamera().combined);
+            hud.stage.draw();
+        }
     }
     
     private void renderDebug() {
