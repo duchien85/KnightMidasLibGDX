@@ -2,7 +2,6 @@
 package game;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -123,8 +122,13 @@ public class PlayScreen implements Screen {
             debugRenderer.setColor(Color.BLUE);
             debugRenderer.rect(p1.feet.x, p1.feet.y, p1.feet.width, p1.feet.height);
             debugRenderer.end();
+            
+            debugRenderer.setProjectionMatrix(camera.combined);
+            debugRenderer.begin(ShapeRenderer.ShapeType.Line);
+            debugRenderer.setColor(Color.BLUE);
+            debugRenderer.rect(p1.head.x, p1.head.y, p1.head.width, p1.head.height);
+            debugRenderer.end();
         }
-        
         
         //Player Sprite/Hitboxes/Pos
         if (hud.debug[1]) {

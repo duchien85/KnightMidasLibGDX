@@ -46,13 +46,12 @@ public class Hud implements Disposable {
     private Label down, right, left, attack, jump;
     private Label isJumping, canJump, smallJump, tookDamage, isSpawning,
             hasExitKey, finishedLevel;
-    private Label bodyTopCollided, bodyRightCollided, bodyLeftCollided,
+    private Label headTopCollided, bodyRightCollided, bodyLeftCollided,
             feetBottomCollided;
     private Label position, futurePositionOffset, velocity, jumpSpeed, gravity;
     private Label jumpHeight, jumpHalfDurationTime, timeToRunSpeed,
             walkSpeed, runSpeed, knockbackSpeed;
     private Label walkTimer, jumpTimer, actualState, animationTimer, iFrames;
-    
     
     
     public Hud(SpriteBatch batch) {
@@ -113,7 +112,7 @@ public class Hud implements Disposable {
         finishedLevel = new Label("finishedLevel: ", labelStyle);
         
         //Página 4
-        bodyTopCollided = new Label("bodyTopCollided: ", labelStyle);
+        headTopCollided = new Label("headTopCollided: ", labelStyle);
         bodyRightCollided = new Label("bodyRightCollided: ", labelStyle);
         bodyLeftCollided = new Label("bodyLeftCollided: ", labelStyle);
         feetBottomCollided = new Label("feetBottomCollided: ", labelStyle);
@@ -181,7 +180,7 @@ public class Hud implements Disposable {
         temp.clear();
         
         //Página 4
-        temp.add(bodyTopCollided);
+        temp.add(headTopCollided);
         temp.add(bodyLeftCollided);
         temp.add(bodyRightCollided);
         temp.add(feetBottomCollided);
@@ -251,21 +250,21 @@ public class Hud implements Disposable {
         finishedLevel.setText("finishedLevel: " + screen.p1.finishedLevel);
         
         //Página 4
-        bodyTopCollided.setText("bodyTopCollided: " + screen.p1.bodyTopCollided);
+        headTopCollided.setText("headTopCollided: " + screen.p1.headTopCollided);
         bodyRightCollided.setText("bodyRightCollided: " + screen.p1.bodyRightCollided);
         bodyLeftCollided.setText("bodyLeftCollided: " + screen.p1.bodyLeftCollided);
         feetBottomCollided.setText("feetBottomCollided: " + screen.p1.feetBottomCollided);
         
         //Página 5
         position.setText("position: " 
-                + String.format("%.4f", screen.p1.position.x) + ","
+                + String.format("%.4f", screen.p1.position.x) + "  "
                 + String.format("%.4f", screen.p1.position.y));
         futurePositionOffset.setText("futurePositionOffset: " 
-                + String.format("%.4f", screen.p1.futurePositionOffset.x) + ","
+                + String.format("%.4f", screen.p1.futurePositionOffset.x) + "  "
                 + String.format("%.4f", screen.p1.futurePositionOffset.y));
         velocity.setText("velocity: " 
-                + String.format("%.4f", screen.p1.velocity.x) + ","
-                + String.format("%.4f", screen.p1.velocity.y));
+                + String.format("%.2f", screen.p1.velocity.x) + "  "
+                + String.format("%.2f", screen.p1.velocity.y));
         jumpSpeed.setText("jumpSpeed: " + screen.p1.jumpSpeed);
         gravity.setText("gravity: " + screen.p1.gravity);
         
@@ -276,8 +275,8 @@ public class Hud implements Disposable {
         walkSpeed.setText("walkSpeed: " + screen.p1.walkSpeed);
         runSpeed.setText("runSpeed: " + screen.p1.runSpeed);
         knockbackSpeed.setText("knockbackSpeed: " 
-                + String.format("%.4f", screen.p1.knockbackSpeed.x) + ","
-                + String.format("%.4f", screen.p1.knockbackSpeed.y));
+                + String.format("%.2f", screen.p1.knockbackSpeed.x) + "  "
+                + String.format("%.2f", screen.p1.knockbackSpeed.y));
         
         //Página 7
         actualState.setText("actualState: " + screen.p1.actualState);
@@ -289,29 +288,6 @@ public class Hud implements Disposable {
         stage.clear();
         stage.addActor(tables[actualHudPage-1]);
         
-        /*
-        labelPosX.setText("X Pos: " + screen.p1.body.x);
-        labelPosY.setText("Y Pos: " + screen.p1.body.y);
-        labelSpeedX.setText("X Speed: " + screen.p1.velocity.x);
-        labelSpeedY.setText("Y Speed: " + screen.p1.velocity.y);
-        labelPlayerHealth.setText("Health: " + screen.p1.health);
-        //labelSnakeHealth.setText("Snake Health: " + screen.s1.health);
-        labelPlayerState.setText("State: " + screen.p1.actualState);
-        labelIFrames.setText("iFrames: " + screen.p1.iFrames);
-        
-        //labelDown.setText("down: " + screen.p1.down);
-        //labelLeft.setText("left: " + screen.p1.left);
-        //labelRight.setText("right: " + screen.p1.right);
-        //labelAttack.setText("attack: " + screen.p1.attack);
-        labelFeetBottom.setText("feetBottom: " + screen.p1.feetBottomCollided);
-        labelBodyRight.setText("bodyRight: " + screen.p1.bodyRightCollided);
-        labelBodyLeft.setText("bodyLeft: " + screen.p1.bodyLeftCollided);
-        labelBodyTop.setText("bodyTop: " + screen.p1.bodyTopCollided);
-        labelJump.setText("jump: " + screen.p1.jump);
-        labelCanJump.setText("canJump: " + screen.p1.canJump);
-        labelIsJumping.setText("isJumping: " + screen.p1.isJumping);
-        labelSmallJump.setText("smallJump: " + screen.p1.smallJump);
-        */
     }
     
     private void input() {

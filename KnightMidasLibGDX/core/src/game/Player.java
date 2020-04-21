@@ -35,7 +35,7 @@ public class Player extends GameObject implements Disposable {
     protected boolean finishedLevel = false;
     protected float iFrames = 0;
     
-    protected boolean bodyTopCollided = false,bodyLeftCollided = false,
+    protected boolean headTopCollided = false, bodyLeftCollided = false,
                 bodyRightCollided = false, feetBottomCollided = false;
     
     //Health
@@ -44,14 +44,14 @@ public class Player extends GameObject implements Disposable {
     
     //Physics
     protected Vector2 position;
-    protected Rectangle body, feet, spriteArea, mainHurtbox, swordHitbox;
+    protected Rectangle body, head, feet, spriteArea, mainHurtbox, swordHitbox;
     protected List<Rectangle> parts;
     protected Vector2 futurePositionOffset;
     protected Vector2 velocity = Vector2.Zero;
     
     protected float jumpHeight = 6f, jumpHalfDurationTime = 0.5f,
             timeToRunSpeed = 6 / 30f;
-    protected float walkSpeed = 5f, runSpeed = 7.6f;
+    protected float walkSpeed = 3.5f, runSpeed = 8f;
     protected Vector2 knockbackSpeed = new Vector2(3f, 2f);
     protected float walkTimer = 0f, jumpTimer = 1f;
     
@@ -228,6 +228,7 @@ public class Player extends GameObject implements Disposable {
         
         boolean bodyCollided = false;
         boolean feetCollided = false;
+        boolean headCollided = false;
         Rectangle futureBodyPosition = new Rectangle(
                 body.x + futurePositionOffset.x, body.y + futurePositionOffset.y,
                 body.width, body.height);
@@ -235,6 +236,10 @@ public class Player extends GameObject implements Disposable {
         Rectangle futureFeetPosition = new Rectangle(
                 feet.x + futurePositionOffset.x, feet.y + futurePositionOffset.y,
                 feet.width, feet.height);
+        
+        Rectangle futureHeadPosition = new Rectangle(
+                head.x + futurePositionOffset.x, head.y + futurePositionOffset.y,
+                head.width, head.height);
         
         Rectangle futureHurtboxPosition = new Rectangle(
                 mainHurtbox.x + futurePositionOffset.x, mainHurtbox.y + futurePositionOffset.y,
@@ -244,11 +249,11 @@ public class Player extends GameObject implements Disposable {
                 swordHitbox.x + futurePositionOffset.x, swordHitbox.y + futurePositionOffset.y,
                 swordHitbox.width, swordHitbox.height);
         
-        bodyTopCollided = bodyLeftCollided = bodyRightCollided = feetBottomCollided = false;
+        headTopCollided = bodyLeftCollided = bodyRightCollided = feetBottomCollided = false;
         for (Rectangle wall : actualLevel.walls) {
             
             float feetBottom = futureFeetPosition.y;
-            float bodyTop = futureBodyPosition.y + futureBodyPosition.height;
+            float headTop = futureHeadPosition.y + futureHeadPosition.height;
             float bodyLeft = futureBodyPosition.x;
             float bodyRight = futureBodyPosition.x + futureBodyPosition.width;
             
@@ -259,11 +264,10 @@ public class Player extends GameObject implements Disposable {
             
             if (futureBodyPosition.overlaps(wall)) {
                 
-                if (bodyTop >= wallBottom && bodyTop <= wallTop) bodyTopCollided = true;
                 if (bodyLeft >= wallLeft && bodyLeft <= wallRight) bodyLeftCollided = true;
                 if (bodyRight <= wallRight && bodyRight >= wallLeft) bodyRightCollided = true;
                 
-                if (bodyTopCollided || bodyLeftCollided || bodyRightCollided)
+                if (bodyLeftCollided || bodyRightCollided)
                     bodyCollided = true;
             }
             
@@ -272,7 +276,15 @@ public class Player extends GameObject implements Disposable {
                     feetBottomCollided = true;
                     feetCollided = true;
                 }
-            }  
+            }
+            
+            if (futureHeadPosition.overlaps(wall)) {
+                if (headTop >= wallBottom && headTop <= wallTop) {
+                    headTopCollided = true;
+                    headCollided = true;
+                }
+
+            }
             
             if (bodyCollided && feetCollided) break;
         }
@@ -299,13 +311,13 @@ public class Player extends GameObject implements Disposable {
             System.out.println("Finished level!");
         }
         
-        if (!feetBottomCollided && !bodyTopCollided)
+        if (!feetBottomCollided && !headTopCollided)
             moveOnYAxis();
         
         if (!bodyRightCollided && !bodyLeftCollided)
             moveOnXAxis();
         
-        if (bodyTopCollided)
+        if (headTopCollided)
             velocity.y = 0;
         
         if (feetCollided) {
@@ -333,6 +345,7 @@ public class Player extends GameObject implements Disposable {
     private void moveOnXAxis() {
         position.x = UnitHelper.roundMeters(position.x + futurePositionOffset.x);
         body.x = UnitHelper.roundMeters(body.x + futurePositionOffset.x);
+        head.x = UnitHelper.roundMeters(head.x + futurePositionOffset.x);
         feet.x = UnitHelper.roundMeters(feet.x + futurePositionOffset.x);
         spriteArea.x = UnitHelper.roundMeters(spriteArea.x + futurePositionOffset.x);
         mainHurtbox.x = UnitHelper.roundMeters(mainHurtbox.x + futurePositionOffset.x);
@@ -342,6 +355,7 @@ public class Player extends GameObject implements Disposable {
     private void moveOnYAxis() {
         position.y = UnitHelper.roundMeters(position.y + futurePositionOffset.y);
         body.y = UnitHelper.roundMeters(body.y + futurePositionOffset.y);
+        head.y = UnitHelper.roundMeters(head.y + futurePositionOffset.y);
         feet.y = UnitHelper.roundMeters(feet.y + futurePositionOffset.y);
         spriteArea.y = UnitHelper.roundMeters(spriteArea.y + futurePositionOffset.y);
         mainHurtbox.y = UnitHelper.roundMeters(mainHurtbox.y + futurePositionOffset.y);
@@ -362,6 +376,9 @@ public class Player extends GameObject implements Disposable {
         body = new Rectangle(posX + UnitHelper.pixelsToMeters(24), posY + UnitHelper.pixelsToMeters(2),
                 UnitHelper.pixelsToMeters(16), UnitHelper.pixelsToMeters(24));
         
+        head = new Rectangle(posX + UnitHelper.pixelsToMeters(27), posY + UnitHelper.pixelsToMeters(25),
+                UnitHelper.pixelsToMeters(10), UnitHelper.pixelsToMeters(3));
+        
         feet = new Rectangle(posX + UnitHelper.pixelsToMeters(26), posY + UnitHelper.pixelsToMeters(1),
                 UnitHelper.pixelsToMeters(12), UnitHelper.pixelsToMeters(3));
         
@@ -376,6 +393,7 @@ public class Player extends GameObject implements Disposable {
         
         parts.add(body);
         parts.add(feet);
+        parts.add(head);
         parts.add(spriteArea);
         parts.add(mainHurtbox);
         parts.add(swordHitbox);
