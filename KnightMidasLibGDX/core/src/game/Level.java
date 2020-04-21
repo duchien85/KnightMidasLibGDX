@@ -15,15 +15,19 @@ public class Level implements Disposable {
     protected final TmxMapLoader mapLoader;
     protected final TiledMap map;
     
-    protected ArrayList<Snake> snakes;
     public ArrayList<Rectangle> walls;
+    protected ArrayList<Snake> snakes;
+    protected Rectangle key;
+    protected Rectangle chest;
 
     public Level(String mapPath) {
         this.mapLoader = new TmxMapLoader();
         this.map = this.mapLoader.load(mapPath);
         
-        snakes = new ArrayList<>();
         createWalls();
+        createSnakes();
+        createKey();
+        createChest();
     }
     
     private void createWalls() {
@@ -41,6 +45,55 @@ public class Level implements Disposable {
                     UnitHelper.pixelsToMeters(rect.height)));
         }
     }
+    
+    private void createSnakes() {
+        
+        Array<RectangleMapObject> list = map.getLayers().get(StringPaths.tiled_SnakesLayer)
+                .getObjects().getByType(RectangleMapObject.class);
+        snakes = new ArrayList<>();
+        
+        for (MapObject object : list) {
+            Rectangle rect = ((RectangleMapObject)object).getRectangle();
+            snakes.add( new Snake(this,
+                    UnitHelper.pixelsToMeters(rect.x),
+                    UnitHelper.pixelsToMeters(rect.y)));
+        }
+    }
+    
+    private void createKey() {
+        
+        Array<RectangleMapObject> list = map.getLayers().get(StringPaths.tiled_KeyLayer)
+                .getObjects().getByType(RectangleMapObject.class);
+        
+        for (MapObject object : list) {
+            Rectangle rect = ((RectangleMapObject)object).getRectangle();
+            if (list.size == 1) {
+                key = new Rectangle(
+                    UnitHelper.pixelsToMeters(rect.x),
+                    UnitHelper.pixelsToMeters(rect.y),
+                    UnitHelper.pixelsToMeters(rect.width),
+                    UnitHelper.pixelsToMeters(rect.height));
+            }
+        }
+    }
+    
+    private void createChest() {
+        
+        Array<RectangleMapObject> list = map.getLayers().get(StringPaths.tiled_ChestLayer)
+                .getObjects().getByType(RectangleMapObject.class);
+        
+        for (MapObject object : list) {
+            Rectangle rect = ((RectangleMapObject)object).getRectangle();
+            if (list.size == 1) {
+                chest = new Rectangle(
+                    UnitHelper.pixelsToMeters(rect.x),
+                    UnitHelper.pixelsToMeters(rect.y),
+                    UnitHelper.pixelsToMeters(rect.width),
+                    UnitHelper.pixelsToMeters(rect.height));
+            }
+        }
+    }
+    
 
     public TiledMap getMap() {
         return map;

@@ -10,6 +10,9 @@ public abstract class StringPaths {
     public static final String tiled_BackgroundLayer = "background";
     public static final String tiled_ForegroundLayer = "foreground";
     public static final String tiled_WallsLayer = "walls";
+    public static final String tiled_SnakesLayer = "snakes";
+    public static final String tiled_KeyLayer = "key";
+    public static final String tiled_ChestLayer = "chest";
     
     //Textures
     public static final String texture_Hero = "sheet_hero.png";

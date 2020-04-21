@@ -31,6 +31,8 @@ public class Player extends GameObject implements Disposable {
     protected boolean smallJump = false;
     private boolean tookDamage = false;
     private boolean isSpawning = true;
+    private boolean hasExitKey = false;
+    private boolean finishedLevel = false;
     protected float iFrames = 0;
     
     protected boolean bodyTopCollided = false,bodyLeftCollided = false,
@@ -47,7 +49,7 @@ public class Player extends GameObject implements Disposable {
     private Vector2 futurePositionOffset;
     protected float xSpeed, ySpeed;
     
-    private float jumpHeight = 6f, jumpHalfDurationTime = 0.65f,
+    private float jumpHeight = 6f, jumpHalfDurationTime = 0.5f,
             timeToRunSpeed = 6 / 30f;
     private float walkSpeed = 5f, runSpeed = 7.5f;
     private Vector2 knockbackSpeed = new Vector2(3f, 2f);
@@ -67,7 +69,8 @@ public class Player extends GameObject implements Disposable {
     private float animationTimer = 0;
 
     
-    public Player(float posX, float posY) {
+    public Player(Level level, float posX, float posY) {
+        super(level);
         createBodies(posX, posY);
         createAnimations();
         
@@ -284,10 +287,20 @@ public class Player extends GameObject implements Disposable {
                     snake.getHurt(swordDamage);
             }
             
-            if (futureHurtboxPosition.overlaps(snake.body)) {
+            if (futureHurtboxPosition.overlaps(snake.body) && snake.isAlive) {
                 if (iFrames == 0)
                     getHurt(snake.damage);
             }
+        }
+        
+        if (futureBodyPosition.overlaps(actualLevel.key) && !hasExitKey) {
+            hasExitKey = true;
+            System.out.println("Got exit key!");
+        }
+        
+        if (futureBodyPosition.overlaps(actualLevel.chest) && hasExitKey && !finishedLevel) {
+            finishedLevel = true;
+            System.out.println("Finished level!");
         }
         
         if (!feetBottomCollided && !bodyTopCollided)

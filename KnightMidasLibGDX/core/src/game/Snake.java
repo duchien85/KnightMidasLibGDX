@@ -21,6 +21,7 @@ public class Snake extends GameObject implements Disposable {
     //Logic
     private boolean walkingLeft = true;
     private boolean tookDamage = false;
+    protected boolean isAlive = true;
     
     //Health
     protected float health = 10f;
@@ -45,7 +46,8 @@ public class Snake extends GameObject implements Disposable {
     private float animationTimer = 0;
     
     
-    public Snake(float posX, float posY) {
+    public Snake(Level level, float posX, float posY) {
+        super(level);
         createBody(posX, posY);
         createRender();
     }
@@ -118,6 +120,9 @@ public class Snake extends GameObject implements Disposable {
         }
         
         tookDamage = true;
+        
+        if (health < 0)
+            isAlive = false;
     }
     
     public void createBody(float posX, float posY) {

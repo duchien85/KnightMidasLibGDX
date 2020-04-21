@@ -127,7 +127,7 @@ public class Hud implements Disposable {
         labelSpeedX.setText("X Speed: " + screen.p1.xSpeed);
         labelSpeedY.setText("Y Speed: " + screen.p1.ySpeed);
         labelPlayerHealth.setText("Health: " + screen.p1.health);
-        labelSnakeHealth.setText("Snake Health: " + screen.s1.health);
+        //labelSnakeHealth.setText("Snake Health: " + screen.s1.health);
         labelPlayerState.setText("State: " + screen.p1.actualState);
         labelIFrames.setText("iFrames: " + screen.p1.iFrames);
         
