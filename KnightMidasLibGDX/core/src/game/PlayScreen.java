@@ -11,7 +11,6 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
@@ -28,16 +27,6 @@ public class PlayScreen implements Screen {
     
     //Hud
     private Hud hud;
-    private boolean debug1 = false;
-    private final int debugKey1 = Input.Keys.NUM_1;
-    private boolean debug2 = false;
-    private final int debugKey2 = Input.Keys.NUM_2;
-    private boolean debug3 = false;
-    private final int debugKey3 = Input.Keys.NUM_3;
-    private boolean debug4 = false;
-    private final int debugKey4 = Input.Keys.NUM_4;
-    private boolean debug9 = false;
-    private final int debugKey9 = Input.Keys.NUMPAD_9;
     
     //Level
     private Level level;
@@ -53,11 +42,14 @@ public class PlayScreen implements Screen {
         viewport = new FitViewport(Main.DISPLAY_WIDTH, Main.DISPLAY_HEIGHT, camera);
         camera.position.set(15, 15, 0);
         debugRenderer = new ShapeRenderer();
+        
+        //Hud
         hud = new Hud(main.batch);
         
         //Level
         level = new Level(StringPaths.tiled_ExampleLevel);
         mapRenderer = new OrthogonalTiledMapRenderer(level.getMap(), Main.METERS_PER_PIXEL);
+        
         
         //Objects
         p1 = new Player(level, 2, 4.1875f);
@@ -78,17 +70,13 @@ public class PlayScreen implements Screen {
         for (Snake snake : level.snakes)
             snake.update(dt);
         
+        
         //Camera
         camera.position.x = MathUtils.clamp(p1.body.x + p1.body.width / 2,
                 15, Main.WORLD_WIDTH - 15);
         camera.update();
         
         //Hud
-        if (Gdx.input.isKeyJustPressed(debugKey1)) debug1 = !debug1;
-        if (Gdx.input.isKeyJustPressed(debugKey2)) debug2 = !debug2;
-        if (Gdx.input.isKeyJustPressed(debugKey3)) debug3 = !debug3;
-        if (Gdx.input.isKeyJustPressed(debugKey4)) debug4 = !debug4;
-        if (Gdx.input.isKeyJustPressed(debugKey9)) debug9 = !debug9;
         hud.update(this);
         
         //Level
@@ -111,19 +99,19 @@ public class PlayScreen implements Screen {
             snake.render(main.batch);
         main.batch.end();
         
-        renderDebug();
+        renderHudAndDebug();
+    }
+    
+    private void renderHudAndDebug() {
         
-        if (debug9) {
+        //Hud
+        if (hud.showHud) {
             main.batch.setProjectionMatrix(hud.stage.getCamera().combined);
             hud.stage.draw();
         }
-    }
-    
-    private void renderDebug() {
-        
         
         //Player Physics
-        if (debug1) {
+        if (hud.debug[0]) {
             debugRenderer.setProjectionMatrix(camera.combined);
             debugRenderer.begin(ShapeRenderer.ShapeType.Line);
             debugRenderer.setColor(Color.RED);
@@ -139,7 +127,7 @@ public class PlayScreen implements Screen {
         
         
         //Player Sprite/Hitboxes/Pos
-        if (debug2) {
+        if (hud.debug[1]) {
             debugRenderer.setProjectionMatrix(camera.combined);
             debugRenderer.begin(ShapeRenderer.ShapeType.Line);
             debugRenderer.setColor(Color.YELLOW);
@@ -170,7 +158,7 @@ public class PlayScreen implements Screen {
         
         
         //Snakes
-        if (debug3) {
+        if (hud.debug[2]) {
             for (Snake s : level.snakes) {
                 debugRenderer.setProjectionMatrix(camera.combined);
                 debugRenderer.begin(ShapeRenderer.ShapeType.Line);
@@ -195,7 +183,7 @@ public class PlayScreen implements Screen {
         
         
         //Walls
-        if (debug4) {
+        if (hud.debug[3]) {
             for (Rectangle wall : level.walls) {
                 debugRenderer.setProjectionMatrix(camera.combined);
                 debugRenderer.begin(ShapeRenderer.ShapeType.Line);

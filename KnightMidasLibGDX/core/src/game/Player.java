@@ -29,10 +29,10 @@ public class Player extends GameObject implements Disposable {
     protected boolean isJumping = false;
     protected boolean canJump = true;
     protected boolean smallJump = false;
-    private boolean tookDamage = false;
-    private boolean isSpawning = true;
-    private boolean hasExitKey = false;
-    private boolean finishedLevel = false;
+    protected boolean tookDamage = false;
+    protected boolean isSpawning = true;
+    protected boolean hasExitKey = false;
+    protected boolean finishedLevel = false;
     protected float iFrames = 0;
     
     protected boolean bodyTopCollided = false,bodyLeftCollided = false,
@@ -46,16 +46,16 @@ public class Player extends GameObject implements Disposable {
     protected Vector2 position;
     protected Rectangle body, feet, spriteArea, mainHurtbox, swordHitbox;
     protected List<Rectangle> parts;
-    private Vector2 futurePositionOffset;
-    protected float xSpeed, ySpeed;
+    protected Vector2 futurePositionOffset;
+    protected Vector2 velocity = Vector2.Zero;
     
-    private float jumpHeight = 6f, jumpHalfDurationTime = 0.5f,
+    protected float jumpHeight = 6f, jumpHalfDurationTime = 0.5f,
             timeToRunSpeed = 6 / 30f;
-    private float walkSpeed = 5f, runSpeed = 7.6f;
-    private Vector2 knockbackSpeed = new Vector2(3f, 2f);
-    private float walkTimer = 0f, jumpTimer = 1f;
+    protected float walkSpeed = 5f, runSpeed = 7.6f;
+    protected Vector2 knockbackSpeed = new Vector2(3f, 2f);
+    protected float walkTimer = 0f, jumpTimer = 1f;
     
-    private float jumpSpeed, gravity, xAcceleration;
+    protected float jumpSpeed, gravity;
     
     //Render
     protected Sprite sprite;
@@ -66,7 +66,7 @@ public class Player extends GameObject implements Disposable {
     protected TextureRegion actualRegion;
     protected PlayerState actualState = PlayerState.IDLE;
     private boolean flipX = false, flipY = false;
-    private float animationTimer = 0;
+    protected float animationTimer = 0;
 
     
     public Player(Level level, float posX, float posY) {
@@ -76,7 +76,6 @@ public class Player extends GameObject implements Disposable {
         
         gravity = (-2*jumpHeight) / (jumpHalfDurationTime * jumpHalfDurationTime);
         jumpSpeed = 2 * jumpHeight / jumpHalfDurationTime;
-        xAcceleration = runSpeed / timeToRunSpeed;
     }
     
     public void update(float dt) {
@@ -168,44 +167,39 @@ public class Player extends GameObject implements Disposable {
         
         //Setting speeds
         if (actualState == PlayerState.HURT && iFrames < 0.5f)
-            xSpeed = knockbackSpeed.x;
+            velocity.x = knockbackSpeed.x;
         futurePositionOffset = new Vector2(0, 0);
         
         
         if (actualState == PlayerState.HURT) {
-            ySpeed = knockbackSpeed.y;
+            velocity.y = knockbackSpeed.y;
         } else if (jump && !isJumping && canJump) {
             isJumping = true;
             smallJump = false;
             canJump = false;
-            ySpeed = jumpSpeed;
+            velocity.y = jumpSpeed;
         }
         
-        if (isJumping && !canJump && ySpeed > 0) {
+        if (isJumping && !canJump && velocity.y > 0) {
             if (!jump && !smallJump) {
                 smallJump = true;
-                ySpeed = 0;
+                velocity.y = 0;
             }
         }
         
         
         //Calculating position
         if (actualState == PlayerState.HURT) {
-                float deltaSpeed =  xAcceleration * dt;
-            if (xSpeed + deltaSpeed <= runSpeed)
-                xSpeed += deltaSpeed;
-            else
-                xSpeed = runSpeed;
-            futurePositionOffset.x += xSpeed * dt;
+            futurePositionOffset.x += knockbackSpeed.x * dt;
             
         } else if (right) {
             if (!down && !attack) {
                 walkTimer += dt;
                 if (walkTimer < timeToRunSpeed)
-                    xSpeed = walkSpeed;
+                    velocity.x = walkSpeed;
                 else
-                    xSpeed = runSpeed;
-                futurePositionOffset.x += xSpeed * dt;
+                    velocity.x = runSpeed;
+                futurePositionOffset.x += velocity.x * dt;
             }
             flipX = false;
             swordHitbox.x = position.x + UnitHelper.pixelsToMeters(44);
@@ -214,20 +208,20 @@ public class Player extends GameObject implements Disposable {
             if (!down && !attack) {
                 walkTimer += dt;
                 if (walkTimer < timeToRunSpeed)
-                    xSpeed = walkSpeed;
+                    velocity.x = walkSpeed;
                 else
-                    xSpeed = runSpeed;
-                futurePositionOffset.x -= xSpeed * dt;
+                    velocity.x = runSpeed;
+                futurePositionOffset.x -= velocity.x * dt;
             }
             flipX = true;
             swordHitbox.x = position.x;
         } else {
             walkTimer = 0;
-            xSpeed = 0;
+            velocity.x = 0;
         }
         
-        ySpeed += gravity * dt;
-        futurePositionOffset.y += ySpeed * dt;
+        velocity.y += gravity * dt;
+        futurePositionOffset.y += velocity.y * dt;
     }
     
     private void collisions() {
@@ -312,14 +306,14 @@ public class Player extends GameObject implements Disposable {
             moveOnXAxis();
         
         if (bodyTopCollided)
-            ySpeed = 0;
+            velocity.y = 0;
         
         if (feetCollided) {
             isJumping = false;
             smallJump = false;
             if (!jump && !isJumping && !canJump)
                 canJump = true;
-            ySpeed = 0;
+            velocity.y = 0;
             
         } else {
             isJumping = true;
