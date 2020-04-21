@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.2" tiledversion="1.3.2" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="150" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="13" nextobjectid="107">
+<map version="1.2" tiledversion="1.3.2" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="150" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="13" nextobjectid="109">
  <tileset firstgid="1" source="platform_tileset.tsx"/>
  <imagelayer id="7" name="sky">
   <image source="Cielo.png" width="2400" height="460"/>
@@ -16,7 +16,7 @@
  </layer>
  <layer id="2" name="foreground" width="150" height="30">
   <data encoding="base64" compression="zlib">
-   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
+   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
   </data>
  </layer>
  <layer id="4" name="clouds" width="150" height="30">
@@ -50,12 +50,12 @@
   <object id="83" x="1984" y="368" width="16" height="16"/>
   <object id="84" x="2240" y="384" width="160" height="32"/>
   <object id="92" x="2192" y="368" width="16" height="16"/>
-  <object id="95" x="0" y="256" width="64" height="32"/>
   <object id="98" x="1888" y="272" width="64" height="32"/>
   <object id="102" x="1920" y="240" width="32" height="16"/>
   <object id="103" x="1952" y="272" width="288" height="32"/>
   <object id="104" x="1888" y="256" width="352" height="16"/>
   <object id="105" x="2224" y="240" width="16" height="16"/>
+  <object id="108" x="0" y="256" width="80" height="32"/>
  </objectgroup>
  <objectgroup id="10" name="snakes">
   <object id="88" x="1904" y="384">
@@ -66,7 +66,7 @@
   </object>
   <object id="89" x="2048" y="384">
    <properties>
-    <property name="facing" type="int" value="1"/>
+    <property name="walkingLeft" type="bool" value="false"/>
    </properties>
    <point/>
   </object>

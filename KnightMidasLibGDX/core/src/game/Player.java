@@ -51,7 +51,7 @@ public class Player extends GameObject implements Disposable {
     
     private float jumpHeight = 6f, jumpHalfDurationTime = 0.5f,
             timeToRunSpeed = 6 / 30f;
-    private float walkSpeed = 5f, runSpeed = 7.5f;
+    private float walkSpeed = 5f, runSpeed = 7.6f;
     private Vector2 knockbackSpeed = new Vector2(3f, 2f);
     private float walkTimer = 0f, jumpTimer = 1f;
     
@@ -208,6 +208,7 @@ public class Player extends GameObject implements Disposable {
                 futurePositionOffset.x += xSpeed * dt;
             }
             flipX = false;
+            swordHitbox.x = position.x + UnitHelper.pixelsToMeters(44);
             
         } else if (left) {
             if (!down && !attack) {
@@ -219,6 +220,7 @@ public class Player extends GameObject implements Disposable {
                 futurePositionOffset.x -= xSpeed * dt;
             }
             flipX = true;
+            swordHitbox.x = position.x;
         } else {
             walkTimer = 0;
             xSpeed = 0;
@@ -376,7 +378,7 @@ public class Player extends GameObject implements Disposable {
                 UnitHelper.pixelsToMeters(20), UnitHelper.pixelsToMeters(23));
         
         swordHitbox = new Rectangle(posX + UnitHelper.pixelsToMeters(44), posY + UnitHelper.pixelsToMeters(1),
-                UnitHelper.pixelsToMeters(19), UnitHelper.pixelsToMeters(8));
+                UnitHelper.pixelsToMeters(20), UnitHelper.pixelsToMeters(8));
         
         parts.add(body);
         parts.add(feet);
