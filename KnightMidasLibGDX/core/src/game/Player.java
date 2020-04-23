@@ -4,6 +4,7 @@ package game;
 import game.animations.PlayerState;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.audio.Sound;
 import game.animations.AnimationHelper;
 import game.animations.CustomAnimationBundle;
 import game.animations.CustomAnimation;
@@ -27,6 +28,8 @@ public class Player extends GameObject implements Disposable {
     
     //Logic
     protected boolean isJumping = false;
+    protected boolean isAttacking = false;
+    private boolean finishedAttack = false;
     protected boolean canJump = true;
     protected boolean smallJump = false;
     protected boolean tookDamage = false;
@@ -41,6 +44,9 @@ public class Player extends GameObject implements Disposable {
     //Health
     protected float health = 20f;
     private float swordDamage = 6f;
+    
+    //Audio
+    private Sound swordSound;
     
     //Physics
     protected Vector2 position;
@@ -74,6 +80,9 @@ public class Player extends GameObject implements Disposable {
         createBodies(posX, posY);
         createAnimations();
         
+        swordSound = Gdx.audio.newSound(
+                Gdx.files.internal(StringPaths.sound_SwordSwish));
+        
         gravity = (-2*jumpHeight) / (jumpHalfDurationTime * jumpHalfDurationTime);
         jumpSpeed = 2 * jumpHeight / jumpHalfDurationTime;
     }
@@ -85,6 +94,8 @@ public class Player extends GameObject implements Disposable {
         iFrames(dt);
         
         changeState();
+        
+        logic();
         
         physics(dt);
         
@@ -114,6 +125,12 @@ public class Player extends GameObject implements Disposable {
         
         if ((jump && down) || down)
             jump = false;
+        
+        
+        if (attack && !isAttacking) {
+            isAttacking = true;
+            swordSound.play();
+        }
     }
     
     private void iFrames(float dt) {
@@ -147,9 +164,12 @@ public class Player extends GameObject implements Disposable {
             actualState = PlayerState.DUCK;
         else if (isJumping)
             actualState = PlayerState.JUMP;
-        else if (attack)
+        else if (isAttacking) {
             actualState = PlayerState.STAB;
-        else if ((right || left) && !attack) {
+            if (animations.get(actualState).isAnimationFinished(animationTimer))
+                finishedAttack = true;
+        }
+        else if ((right || left) && !isAttacking && !attack) {
             if (walkTimer < timeToRunSpeed)
                 actualState = PlayerState.HALF_WALK;
             else
@@ -161,6 +181,13 @@ public class Player extends GameObject implements Disposable {
         //System.out.println(actualState + " e " + isJumping);
         if (actualState != previousState)
             animationTimer = 0;
+    }
+    
+    private void logic() {
+        if (finishedAttack && !attack && isAttacking) {
+            isAttacking = false;
+            finishedAttack = false;
+        }
     }
     
     private void physics(float dt) {
@@ -193,7 +220,7 @@ public class Player extends GameObject implements Disposable {
             futurePositionOffset.x += knockbackSpeed.x * dt;
             
         } else if (right) {
-            if (!down && !attack) {
+            if (!down && !attack && !isAttacking) {
                 walkTimer += dt;
                 if (walkTimer < timeToRunSpeed)
                     velocity.x = walkSpeed;
@@ -205,7 +232,7 @@ public class Player extends GameObject implements Disposable {
             swordHitbox.x = position.x + UnitHelper.pixelsToMeters(44);
             
         } else if (left) {
-            if (!down && !attack) {
+            if (!down && !attack && !isAttacking) {
                 walkTimer += dt;
                 if (walkTimer < timeToRunSpeed)
                     velocity.x = walkSpeed;
@@ -290,7 +317,8 @@ public class Player extends GameObject implements Disposable {
         }
         
         for (Snake snake : actualLevel.snakes) {
-            if (attack && futureSwordPosition.overlaps(snake.body)) {
+            if (isAttacking && !finishedAttack &&
+                    futureSwordPosition.overlaps(snake.body)) {
                 if (snake.iFrames == 0)
                     snake.getHurt(swordDamage);
             }
@@ -425,5 +453,6 @@ public class Player extends GameObject implements Disposable {
     @Override
     public void dispose() {
         spritesheet.dispose();
+        swordSound.dispose();
     }
 }

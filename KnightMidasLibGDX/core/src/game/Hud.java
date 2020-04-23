@@ -12,7 +12,6 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFont
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -45,7 +44,7 @@ public class Hud implements Disposable {
     
     private Label down, right, left, attack, jump;
     private Label isJumping, canJump, smallJump, tookDamage, isSpawning,
-            hasExitKey, finishedLevel;
+            isAttacking, hasExitKey, finishedLevel;
     private Label headTopCollided, bodyRightCollided, bodyLeftCollided,
             feetBottomCollided;
     private Label position, futurePositionOffset, velocity, jumpSpeed, gravity;
@@ -81,7 +80,8 @@ public class Hud implements Disposable {
     }
     
     private void font() {
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("m5x7.ttf"));
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(
+                Gdx.files.internal(StringPaths.font_m5x7));
         FreeTypeFontParameter parameter = new FreeTypeFontParameter();
         parameter.size = 24;
         parameter.borderColor = Color.BLACK;
@@ -95,15 +95,16 @@ public class Hud implements Disposable {
     
     private void createComponents() {
         
-        //Página 2
+        //Pagina 2
         down = new Label("down: ", labelStyle);
         right = new Label("right: ", labelStyle);
         left = new Label("left: ", labelStyle);
         attack = new Label("attack: ", labelStyle);
         jump = new Label("jump: ", labelStyle);
         
-        //Página 3
+        //Pagina 3
         isJumping = new Label("isJumping: ", labelStyle);
+        isAttacking = new Label("isAttacking: ", labelStyle);
         canJump = new Label("canJump: ", labelStyle);
         smallJump = new Label("smallJump: ", labelStyle);
         tookDamage = new Label("tookDamage: ", labelStyle);
@@ -111,20 +112,20 @@ public class Hud implements Disposable {
         hasExitKey = new Label("hasExitKey: ", labelStyle);
         finishedLevel = new Label("finishedLevel: ", labelStyle);
         
-        //Página 4
+        //Pagina 4
         headTopCollided = new Label("headTopCollided: ", labelStyle);
         bodyRightCollided = new Label("bodyRightCollided: ", labelStyle);
         bodyLeftCollided = new Label("bodyLeftCollided: ", labelStyle);
         feetBottomCollided = new Label("feetBottomCollided: ", labelStyle);
         
-        //Página 5
+        //Pagina 5
         position = new Label("position: ", labelStyle);
         futurePositionOffset = new Label("futurePositionOffset: ", labelStyle);
         velocity = new Label("velocity: ", labelStyle);
         jumpSpeed = new Label("jumpSpeed: ", labelStyle);
         gravity = new Label("gravity: ", labelStyle);
         
-        //Página 6
+        //Pagina 6
         jumpHeight = new Label("jumpHeight: ", labelStyle);
         jumpHalfDurationTime = new Label("jumpHalfDurationTime: ", labelStyle);
         timeToRunSpeed = new Label("timeToRunSpeed: ", labelStyle);
@@ -132,7 +133,7 @@ public class Hud implements Disposable {
         runSpeed = new Label("runSpeed: ", labelStyle);
         knockbackSpeed = new Label("knockbackSpeed: ", labelStyle);
         
-        //Página 7
+        //Pagina 7
         walkTimer = new Label("walkTimer: ", labelStyle);
         jumpTimer = new Label("jumpTimer: ", labelStyle);
         actualState = new Label("actualState: ", labelStyle);
@@ -154,12 +155,12 @@ public class Hud implements Disposable {
         
         ArrayList<Label> temp = new ArrayList<>();
         
-        //Página 1
+        //Pagina 1
         temp.add(new Label("placeholder", labelStyle));
         addToTable(0, temp);
         temp.clear();
         
-        //Página 2
+        //Pagina 2
         temp.add(down);
         temp.add(right);
         temp.add(left);
@@ -168,8 +169,9 @@ public class Hud implements Disposable {
         addToTable(1, temp);
         temp.clear();
         
-        //Página 3
+        //Pagina 3
         temp.add(isJumping);
+        temp.add(isAttacking);
         temp.add(canJump);
         temp.add(smallJump);
         temp.add(tookDamage);
@@ -179,7 +181,7 @@ public class Hud implements Disposable {
         addToTable(2, temp);
         temp.clear();
         
-        //Página 4
+        //Pagina 4
         temp.add(headTopCollided);
         temp.add(bodyLeftCollided);
         temp.add(bodyRightCollided);
@@ -187,7 +189,7 @@ public class Hud implements Disposable {
         addToTable(3, temp);
         temp.clear();
         
-        //Página 5
+        //Pagina 5
         temp.add(position);
         temp.add(futurePositionOffset);
         temp.add(velocity);
@@ -196,7 +198,7 @@ public class Hud implements Disposable {
         addToTable(4, temp);
         temp.clear();
         
-        //Página 6
+        //Pagina 6
         temp.add(jumpHeight);
         temp.add(jumpHalfDurationTime);
         temp.add(timeToRunSpeed);
@@ -206,7 +208,7 @@ public class Hud implements Disposable {
         addToTable(5, temp);
         temp.clear();
         
-        //Página 7
+        //Pagina 7
         temp.add(actualState);
         temp.add(walkTimer);
         temp.add(jumpTimer);
@@ -233,15 +235,16 @@ public class Hud implements Disposable {
         
         input();
         
-        //Página 2
+        //Pagina 2
         down.setText("down: " + screen.p1.down);
         right.setText("right: " + screen.p1.right);
         left.setText("left: " + screen.p1.left);
         attack.setText("attack: " + screen.p1.attack);
         jump.setText("jump: " + screen.p1.jump);
         
-        //Página 3
+        //Pagina 3
         isJumping.setText("isJumping: " + screen.p1.isJumping);
+        isAttacking.setText("isAttacking: " + screen.p1.isAttacking);
         canJump.setText("canJump: " + screen.p1.canJump);
         smallJump.setText("smallJump: " + screen.p1.smallJump);
         tookDamage.setText("tookDamage: " + screen.p1.tookDamage);
@@ -249,13 +252,13 @@ public class Hud implements Disposable {
         hasExitKey.setText("hasExitKey: " + screen.p1.hasExitKey);
         finishedLevel.setText("finishedLevel: " + screen.p1.finishedLevel);
         
-        //Página 4
+        //Pagina 4
         headTopCollided.setText("headTopCollided: " + screen.p1.headTopCollided);
         bodyRightCollided.setText("bodyRightCollided: " + screen.p1.bodyRightCollided);
         bodyLeftCollided.setText("bodyLeftCollided: " + screen.p1.bodyLeftCollided);
         feetBottomCollided.setText("feetBottomCollided: " + screen.p1.feetBottomCollided);
         
-        //Página 5
+        //Pagina 5
         position.setText("position: " 
                 + String.format("%.4f", screen.p1.position.x) + "  "
                 + String.format("%.4f", screen.p1.position.y));
@@ -268,7 +271,7 @@ public class Hud implements Disposable {
         jumpSpeed.setText("jumpSpeed: " + screen.p1.jumpSpeed);
         gravity.setText("gravity: " + screen.p1.gravity);
         
-        //Página 6
+        //Pagina 6
         jumpHeight.setText("jumpHeight: " + screen.p1.jumpHeight);
         jumpHalfDurationTime.setText("jumpHalfDurationTime: " + screen.p1.jumpHalfDurationTime);
         timeToRunSpeed.setText("timeToRunSpeed: " + screen.p1.timeToRunSpeed);
@@ -278,7 +281,7 @@ public class Hud implements Disposable {
                 + String.format("%.2f", screen.p1.knockbackSpeed.x) + "  "
                 + String.format("%.2f", screen.p1.knockbackSpeed.y));
         
-        //Página 7
+        //Pagina 7
         actualState.setText("actualState: " + screen.p1.actualState);
         walkTimer.setText("walkTimer: " + screen.p1.walkTimer);
         jumpTimer.setText("jumpTimer: " + screen.p1.jumpTimer);

@@ -3,6 +3,8 @@ package game;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -24,6 +26,9 @@ public class PlayScreen implements Screen {
     private final Viewport viewport;
     private ShapeRenderer debugRenderer;
     
+    //Audio
+    private Music music1;
+    
     //Hud
     private Hud hud;
     
@@ -41,6 +46,12 @@ public class PlayScreen implements Screen {
         viewport = new FitViewport(Main.DISPLAY_WIDTH, Main.DISPLAY_HEIGHT, camera);
         camera.position.set(15, 15, 0);
         debugRenderer = new ShapeRenderer();
+        
+        //Music
+        music1 = Gdx.audio.newMusic(
+                Gdx.files.internal(StringPaths.music_TutorialLevel));
+        music1.setLooping(true);
+        music1.play();
         
         //Hud
         hud = new Hud(main.batch);
@@ -68,7 +79,6 @@ public class PlayScreen implements Screen {
         p1.update(dt);
         for (Snake snake : level.snakes)
             snake.update(dt);
-        
         
         //Camera
         camera.position.x = MathUtils.clamp(p1.body.x + p1.body.width / 2,
@@ -203,6 +213,9 @@ public class PlayScreen implements Screen {
         
         //Graphic
         hud.dispose();
+        
+        //Music
+        music1.dispose();
         
         //Objects
         p1.dispose();
