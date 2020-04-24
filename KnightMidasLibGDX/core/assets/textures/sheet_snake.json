@@ -2,7 +2,7 @@
    "animations":[
       {
          "name":"snakeWalk",
-         "time":10,
+         "time":8,
          "framesLength":7,
 		 "playMode":2,
          "frames":[
@@ -35,13 +35,7 @@
                "y":0,
                "width":64,
                "height":64
-            },
-            {
-               "x":320,
-               "y":0,
-               "width":64,
-               "height":64
-            },
+            }
             {
                "x":384,
                "y":0,

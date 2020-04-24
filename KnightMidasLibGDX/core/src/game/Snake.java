@@ -129,7 +129,7 @@ public class Snake extends GameObject implements Disposable {
         
         position = new Vector2(posX, posY);
         body = new Rectangle(posX + UnitHelper.pixelsToMeters(11), posY,
-            UnitHelper.pixelsToMeters(42), UnitHelper.pixelsToMeters(21));
+            UnitHelper.pixelsToMeters(36), UnitHelper.pixelsToMeters(16));
         
         spriteArea = new Rectangle(posX, posY, 
                 UnitHelper.pixelsToMeters(spriteWidthPixels), UnitHelper.pixelsToMeters(spriteHeightPixels));

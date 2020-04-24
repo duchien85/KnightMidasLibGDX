@@ -24,7 +24,7 @@ import java.util.List;
 public class Player extends GameObject implements Disposable {
     
     //Input
-    protected boolean left, right, down, attack, jump;
+    protected boolean left, right, attack, jump;
     
     //Logic
     protected boolean isJumping = false;
@@ -112,19 +112,15 @@ public class Player extends GameObject implements Disposable {
     
     private void getInput() {
         
-        right = down = left = attack = jump = false;
+        right = left = attack = jump = false;
         
         right = Gdx.input.isKeyPressed(Input.Keys.RIGHT);
-        down = Gdx.input.isKeyPressed(Input.Keys.DOWN);
         left = Gdx.input.isKeyPressed(Input.Keys.LEFT);
         attack = Gdx.input.isKeyPressed(Input.Keys.X);
         jump = Gdx.input.isKeyPressed(Input.Keys.Z);
         
-        if (left && right)
+        if ((left && right) || (attack && isAttacking && !finishedAttack))
             left = right = false;
-        
-        if ((jump && down) || down)
-            jump = false;
         
         
         if (attack && !isAttacking && !tookDamage) {
@@ -158,13 +154,13 @@ public class Player extends GameObject implements Disposable {
         else if (tookDamage && iFrames > 0) {
             actualState = PlayerState.HURT;
             if (iFrames < 0.5f)
-                jump = right = down = left = false;
+                jump = right = left = false;
         }
-        else if (down && !isJumping)
-            actualState = PlayerState.DUCK;
         else if (isJumping)
             actualState = PlayerState.JUMP;
         else if (isAttacking) {
+            if (previousState != PlayerState.STAB)
+                animationTimer = 0;
             actualState = PlayerState.STAB;
             if (animations.get(actualState).isAnimationFinished(animationTimer))
                 finishedAttack = true;
@@ -220,8 +216,7 @@ public class Player extends GameObject implements Disposable {
             futurePositionOffset.x += knockbackSpeed.x * dt;
             
         } else if (right) {
-            if ((!down && !attack && !isAttacking) 
-                    || (!down && isJumping)) {
+            if ((!attack && !isAttacking) || isJumping) {
                 walkTimer += dt;
                 if (walkTimer < timeToRunSpeed)
                     velocity.x = walkSpeed;
@@ -233,8 +228,7 @@ public class Player extends GameObject implements Disposable {
             swordHitbox.x = position.x + UnitHelper.pixelsToMeters(44);
             
         } else if (left) {
-            if (!down && !attack && !isAttacking
-                    || (!down && isJumping)) {
+            if ((!attack && !isAttacking) || isJumping) {
                 walkTimer += dt;
                 if (walkTimer < timeToRunSpeed)
                     velocity.x = walkSpeed;

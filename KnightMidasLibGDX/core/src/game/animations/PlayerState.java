@@ -9,7 +9,6 @@ public enum PlayerState {
     STAB("heroStab"),
     HURT("heroHurt"),
     JUMP("heroJump"),
-    DUCK("heroDuck"),
     SPAWN("heroSpawn");
     
     private final String stateName;
