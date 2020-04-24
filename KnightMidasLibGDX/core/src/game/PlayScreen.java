@@ -144,7 +144,8 @@ public class PlayScreen implements Screen {
         if (hud.debug[1]) {
             debugRenderer.setProjectionMatrix(camera.combined);
             debugRenderer.begin(ShapeRenderer.ShapeType.Line);
-            debugRenderer.setColor(Color.YELLOW);
+            debugRenderer.setColor((p1.isAttacking && !p1.finishedAttack)
+                    ? Color.RED : Color.YELLOW);
             debugRenderer.rect(p1.swordHitbox.x, p1.swordHitbox.y,
                     p1.swordHitbox.width, p1.swordHitbox.height);
             debugRenderer.end();
@@ -158,7 +159,7 @@ public class PlayScreen implements Screen {
             
             debugRenderer.setProjectionMatrix(camera.combined);
             debugRenderer.begin(ShapeRenderer.ShapeType.Line);
-            debugRenderer.setColor(Color.GREEN);
+            debugRenderer.setColor(Color.YELLOW);
             debugRenderer.rect(p1.spriteArea.x, p1.spriteArea.y,
                     p1.spriteArea.width, p1.spriteArea.height);
             debugRenderer.end();

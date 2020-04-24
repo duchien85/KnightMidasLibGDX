@@ -29,7 +29,7 @@ public class Player extends GameObject implements Disposable {
     //Logic
     protected boolean isJumping = false;
     protected boolean isAttacking = false;
-    private boolean finishedAttack = false;
+    protected boolean finishedAttack = false;
     protected boolean canJump = true;
     protected boolean smallJump = false;
     protected boolean tookDamage = false;
@@ -127,7 +127,7 @@ public class Player extends GameObject implements Disposable {
             jump = false;
         
         
-        if (attack && !isAttacking) {
+        if (attack && !isAttacking && !tookDamage) {
             isAttacking = true;
             swordSound.play();
         }
@@ -220,7 +220,8 @@ public class Player extends GameObject implements Disposable {
             futurePositionOffset.x += knockbackSpeed.x * dt;
             
         } else if (right) {
-            if (!down && !attack && !isAttacking) {
+            if ((!down && !attack && !isAttacking) 
+                    || (!down && isJumping)) {
                 walkTimer += dt;
                 if (walkTimer < timeToRunSpeed)
                     velocity.x = walkSpeed;
@@ -232,7 +233,8 @@ public class Player extends GameObject implements Disposable {
             swordHitbox.x = position.x + UnitHelper.pixelsToMeters(44);
             
         } else if (left) {
-            if (!down && !attack && !isAttacking) {
+            if (!down && !attack && !isAttacking
+                    || (!down && isJumping)) {
                 walkTimer += dt;
                 if (walkTimer < timeToRunSpeed)
                     velocity.x = walkSpeed;
@@ -404,11 +406,11 @@ public class Player extends GameObject implements Disposable {
         body = new Rectangle(posX + UnitHelper.pixelsToMeters(24), posY + UnitHelper.pixelsToMeters(2),
                 UnitHelper.pixelsToMeters(16), UnitHelper.pixelsToMeters(24));
         
-        head = new Rectangle(posX + UnitHelper.pixelsToMeters(27), posY + UnitHelper.pixelsToMeters(25),
-                UnitHelper.pixelsToMeters(10), UnitHelper.pixelsToMeters(3));
+        head = new Rectangle(posX + UnitHelper.pixelsToMeters(28), posY + UnitHelper.pixelsToMeters(25),
+                UnitHelper.pixelsToMeters(8), UnitHelper.pixelsToMeters(3));
         
-        feet = new Rectangle(posX + UnitHelper.pixelsToMeters(26), posY + UnitHelper.pixelsToMeters(1),
-                UnitHelper.pixelsToMeters(12), UnitHelper.pixelsToMeters(3));
+        feet = new Rectangle(posX + UnitHelper.pixelsToMeters(28), posY + UnitHelper.pixelsToMeters(1),
+                UnitHelper.pixelsToMeters(8), UnitHelper.pixelsToMeters(3));
         
         spriteArea = new Rectangle(posX, posY, 
                 UnitHelper.pixelsToMeters(spriteWidthPixels), UnitHelper.pixelsToMeters(spriteHeightPixels));
