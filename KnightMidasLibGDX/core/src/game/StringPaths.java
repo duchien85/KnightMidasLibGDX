@@ -16,6 +16,7 @@ public abstract class StringPaths {
     
     //Textures
     public static final String texture_Hero = "textures/sheet_hero.png";
+    public static final String texture_SpinAttack = "textures/sheet_hero_spinattack,png";
     public static final String texture_Snake = "textures/sheet_snake.png";
     
     //Texture JSONs

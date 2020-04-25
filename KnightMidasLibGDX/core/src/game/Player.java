@@ -73,7 +73,6 @@ public class Player extends GameObject implements Disposable {
     protected PlayerState actualState = PlayerState.IDLE;
     private boolean flipX = false, flipY = false;
     protected float animationTimer = 0;
-
     
     public Player(Level level, float posX, float posY) {
         super(level);
@@ -225,7 +224,7 @@ public class Player extends GameObject implements Disposable {
                 futurePositionOffset.x += velocity.x * dt;
             }
             flipX = false;
-            swordHitbox.x = position.x + UnitHelper.pixelsToMeters(44);
+            swordHitbox.x = position.x + UnitHelper.pixelsToMeters(36);
             
         } else if (left) {
             if ((!attack && !isAttacking) || isJumping) {
@@ -350,7 +349,6 @@ public class Player extends GameObject implements Disposable {
             if (!jump && !isJumping && !canJump)
                 canJump = true;
             velocity.y = 0;
-            
         } else {
             isJumping = true;
         }
@@ -409,11 +407,11 @@ public class Player extends GameObject implements Disposable {
         spriteArea = new Rectangle(posX, posY, 
                 UnitHelper.pixelsToMeters(spriteWidthPixels), UnitHelper.pixelsToMeters(spriteHeightPixels));
         
-        mainHurtbox = new Rectangle(posX + UnitHelper.pixelsToMeters(22), posY + UnitHelper.pixelsToMeters(2),
-                UnitHelper.pixelsToMeters(20), UnitHelper.pixelsToMeters(23));
+        mainHurtbox = new Rectangle(posX + UnitHelper.pixelsToMeters(24), posY + UnitHelper.pixelsToMeters(2),
+                UnitHelper.pixelsToMeters(16), UnitHelper.pixelsToMeters(23));
         
-        swordHitbox = new Rectangle(posX + UnitHelper.pixelsToMeters(44), posY + UnitHelper.pixelsToMeters(1),
-                UnitHelper.pixelsToMeters(20), UnitHelper.pixelsToMeters(8));
+        swordHitbox = new Rectangle(posX + UnitHelper.pixelsToMeters(36), posY + UnitHelper.pixelsToMeters(1),
+                UnitHelper.pixelsToMeters(26), UnitHelper.pixelsToMeters(12));
         
         parts.add(body);
         parts.add(feet);

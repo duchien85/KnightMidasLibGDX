@@ -23,6 +23,9 @@ public class Hud implements Disposable {
     private final int numberOfDebugKeys = 7;
     private int actualHudPage = 1, firstHudPage = 1, lastHudPage = 7;
     
+    protected int frameCounter = 0;
+    protected int frameUpdateDelay = 3;
+    
     protected boolean[] debug;
     protected boolean showHud = false;
     
@@ -235,62 +238,68 @@ public class Hud implements Disposable {
         
         input();
         
-        //Pagina 2
-        right.setText("right: " + screen.p1.right);
-        left.setText("left: " + screen.p1.left);
-        attack.setText("attack: " + screen.p1.attack);
-        jump.setText("jump: " + screen.p1.jump);
+        if (frameCounter % frameUpdateDelay == 0) {
+            
+            frameCounter = 0;
+            
+            //Pagina 2
+            right.setText("right: " + screen.p1.right);
+            left.setText("left: " + screen.p1.left);
+            attack.setText("attack: " + screen.p1.attack);
+            jump.setText("jump: " + screen.p1.jump);
+
+            //Pagina 3
+            isJumping.setText("isJumping: " + screen.p1.isJumping);
+            isAttacking.setText("isAttacking: " + screen.p1.isAttacking);
+            finishedAttack.setText("finishedAttack: " + screen.p1.finishedAttack);
+            canJump.setText("canJump: " + screen.p1.canJump);
+            smallJump.setText("smallJump: " + screen.p1.smallJump);
+            tookDamage.setText("tookDamage: " + screen.p1.tookDamage);
+            isSpawning.setText("isSpawning: " + screen.p1.isSpawning);
+            hasExitKey.setText("hasExitKey: " + screen.p1.hasExitKey);
+            finishedLevel.setText("finishedLevel: " + screen.p1.finishedLevel);
+
+            //Pagina 4
+            headTopCollided.setText("headTopCollided: " + screen.p1.headTopCollided);
+            bodyRightCollided.setText("bodyRightCollided: " + screen.p1.bodyRightCollided);
+            bodyLeftCollided.setText("bodyLeftCollided: " + screen.p1.bodyLeftCollided);
+            feetBottomCollided.setText("feetBottomCollided: " + screen.p1.feetBottomCollided);
+
+            //Pagina 5
+            position.setText("position: " 
+                    + String.format("%.4f", screen.p1.position.x) + "  "
+                    + String.format("%.4f", screen.p1.position.y));
+            futurePositionOffset.setText("futurePositionOffset: " 
+                    + String.format("%.4f", screen.p1.futurePositionOffset.x) + "  "
+                    + String.format("%.4f", screen.p1.futurePositionOffset.y));
+            velocity.setText("velocity: " 
+                    + String.format("%.2f", screen.p1.velocity.x) + "  "
+                    + String.format("%.2f", screen.p1.velocity.y));
+            jumpSpeed.setText("jumpSpeed: " + screen.p1.jumpSpeed);
+            gravity.setText("gravity: " + screen.p1.gravity);
+
+            //Pagina 6
+            jumpHeight.setText("jumpHeight: " + screen.p1.jumpHeight);
+            jumpHalfDurationTime.setText("jumpHalfDurationTime: " + screen.p1.jumpHalfDurationTime);
+            timeToRunSpeed.setText("timeToRunSpeed: " + screen.p1.timeToRunSpeed);
+            walkSpeed.setText("walkSpeed: " + screen.p1.walkSpeed);
+            runSpeed.setText("runSpeed: " + screen.p1.runSpeed);
+            knockbackSpeed.setText("knockbackSpeed: " 
+                    + String.format("%.2f", screen.p1.knockbackSpeed.x) + "  "
+                    + String.format("%.2f", screen.p1.knockbackSpeed.y));
+
+            //Pagina 7
+            actualState.setText("actualState: " + screen.p1.actualState);
+            walkTimer.setText("walkTimer: " + screen.p1.walkTimer);
+            jumpTimer.setText("jumpTimer: " + screen.p1.jumpTimer);
+            animationTimer.setText("animationTimer: " + screen.p1.animationTimer);
+            iFrames.setText("iFrames: " + screen.p1.iFrames);
+
+            stage.clear();
+            stage.addActor(tables[actualHudPage-1]);
+        }
         
-        //Pagina 3
-        isJumping.setText("isJumping: " + screen.p1.isJumping);
-        isAttacking.setText("isAttacking: " + screen.p1.isAttacking);
-        finishedAttack.setText("finishedAttack: " + screen.p1.finishedAttack);
-        canJump.setText("canJump: " + screen.p1.canJump);
-        smallJump.setText("smallJump: " + screen.p1.smallJump);
-        tookDamage.setText("tookDamage: " + screen.p1.tookDamage);
-        isSpawning.setText("isSpawning: " + screen.p1.isSpawning);
-        hasExitKey.setText("hasExitKey: " + screen.p1.hasExitKey);
-        finishedLevel.setText("finishedLevel: " + screen.p1.finishedLevel);
-        
-        //Pagina 4
-        headTopCollided.setText("headTopCollided: " + screen.p1.headTopCollided);
-        bodyRightCollided.setText("bodyRightCollided: " + screen.p1.bodyRightCollided);
-        bodyLeftCollided.setText("bodyLeftCollided: " + screen.p1.bodyLeftCollided);
-        feetBottomCollided.setText("feetBottomCollided: " + screen.p1.feetBottomCollided);
-        
-        //Pagina 5
-        position.setText("position: " 
-                + String.format("%.4f", screen.p1.position.x) + "  "
-                + String.format("%.4f", screen.p1.position.y));
-        futurePositionOffset.setText("futurePositionOffset: " 
-                + String.format("%.4f", screen.p1.futurePositionOffset.x) + "  "
-                + String.format("%.4f", screen.p1.futurePositionOffset.y));
-        velocity.setText("velocity: " 
-                + String.format("%.2f", screen.p1.velocity.x) + "  "
-                + String.format("%.2f", screen.p1.velocity.y));
-        jumpSpeed.setText("jumpSpeed: " + screen.p1.jumpSpeed);
-        gravity.setText("gravity: " + screen.p1.gravity);
-        
-        //Pagina 6
-        jumpHeight.setText("jumpHeight: " + screen.p1.jumpHeight);
-        jumpHalfDurationTime.setText("jumpHalfDurationTime: " + screen.p1.jumpHalfDurationTime);
-        timeToRunSpeed.setText("timeToRunSpeed: " + screen.p1.timeToRunSpeed);
-        walkSpeed.setText("walkSpeed: " + screen.p1.walkSpeed);
-        runSpeed.setText("runSpeed: " + screen.p1.runSpeed);
-        knockbackSpeed.setText("knockbackSpeed: " 
-                + String.format("%.2f", screen.p1.knockbackSpeed.x) + "  "
-                + String.format("%.2f", screen.p1.knockbackSpeed.y));
-        
-        //Pagina 7
-        actualState.setText("actualState: " + screen.p1.actualState);
-        walkTimer.setText("walkTimer: " + screen.p1.walkTimer);
-        jumpTimer.setText("jumpTimer: " + screen.p1.jumpTimer);
-        animationTimer.setText("animationTimer: " + screen.p1.animationTimer);
-        iFrames.setText("iFrames: " + screen.p1.iFrames);
-        
-        stage.clear();
-        stage.addActor(tables[actualHudPage-1]);
-        
+        frameCounter++;
     }
     
     private void input() {
