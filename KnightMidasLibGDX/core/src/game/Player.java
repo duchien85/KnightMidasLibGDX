@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -70,7 +71,7 @@ public class Player extends GameObject implements Disposable {
     private HashMap<PlayerState, Animation<TextureRegion>> animations;
     
     protected TextureRegion actualRegion;
-    protected PlayerState actualState = PlayerState.IDLE;
+    protected PlayerState actualState = PlayerState.SPAWN;
     private boolean flipX = false, flipY = false;
     protected float animationTimer = 0;
     
@@ -437,10 +438,12 @@ public class Player extends GameObject implements Disposable {
         for (PlayerState state : PlayerState.values()) {
             anim = bundle.getByName(state.getStateName());
             
-            animations.put(state, new Animation(
-                1f/anim.time,
-                AnimationHelper.getTextureRegions(anim.frames, spritesheet),
-                AnimationHelper.getPlayMode(anim.playMode)));
+            if (anim != null) {
+                animations.put(state, new Animation(
+                    1f/anim.time,
+                    AnimationHelper.getTextureRegions(anim.frames, spritesheet),
+                    AnimationHelper.getPlayMode(anim.playMode)));
+            }
         }
     }
     
