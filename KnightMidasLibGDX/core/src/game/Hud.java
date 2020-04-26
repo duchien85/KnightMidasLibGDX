@@ -47,7 +47,7 @@ public class Hud implements Disposable {
     
     private Label right, left, attack, jump;
     private Label isJumping, canJump, smallJump, tookDamage, isSpawning,
-            isAttacking, finishedAttack, hasExitKey, finishedLevel;
+            isAttacking, isSpinning, finishedAttack, hasExitKey, finishedLevel;
     private Label headTopCollided, bodyRightCollided, bodyLeftCollided,
             feetBottomCollided;
     private Label position, futurePositionOffset, velocity, jumpSpeed, gravity;
@@ -107,6 +107,7 @@ public class Hud implements Disposable {
         //Pagina 3
         isJumping = new Label("isJumping: ", labelStyle);
         isAttacking = new Label("isAttacking: ", labelStyle);
+        isSpinning = new Label("isSpinning: ", labelStyle);
         finishedAttack = new Label("finishedAttack", labelStyle);
         canJump = new Label("canJump: ", labelStyle);
         smallJump = new Label("smallJump: ", labelStyle);
@@ -174,6 +175,7 @@ public class Hud implements Disposable {
         //Pagina 3
         temp.add(isJumping);
         temp.add(isAttacking);
+        temp.add(isSpinning);
         temp.add(finishedAttack);
         temp.add(canJump);
         temp.add(smallJump);
@@ -251,6 +253,7 @@ public class Hud implements Disposable {
             //Pagina 3
             isJumping.setText("isJumping: " + screen.p1.isJumping);
             isAttacking.setText("isAttacking: " + screen.p1.isAttacking);
+            isSpinning.setText("isSpinning: " + screen.p1.isSpinning);
             finishedAttack.setText("finishedAttack: " + screen.p1.finishedAttack);
             canJump.setText("canJump: " + screen.p1.canJump);
             smallJump.setText("smallJump: " + screen.p1.smallJump);

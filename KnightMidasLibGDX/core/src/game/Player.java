@@ -16,7 +16,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,6 +30,7 @@ public class Player extends GameObject implements Disposable {
     protected boolean isJumping = false;
     protected boolean isAttacking = false;
     protected boolean finishedAttack = false;
+    protected boolean isSpinning = false;
     protected boolean canJump = true;
     protected boolean smallJump = false;
     protected boolean tookDamage = false;
@@ -41,6 +41,11 @@ public class Player extends GameObject implements Disposable {
     
     protected boolean headTopCollided = false, bodyLeftCollided = false,
                 bodyRightCollided = false, feetBottomCollided = false;
+    
+    //Timers
+    protected float walkTimer = 0f, jumpTimer = 1f;
+    protected float animationTimer = 0;
+    protected float spinTimer = 0f;
     
     //Health
     protected float health = 20f;
@@ -60,7 +65,6 @@ public class Player extends GameObject implements Disposable {
             timeToRunSpeed = 6 / 30f;
     protected float walkSpeed = 3.5f, runSpeed = 8f;
     protected Vector2 knockbackSpeed = new Vector2(3f, 2f);
-    protected float walkTimer = 0f, jumpTimer = 1f;
     
     protected float jumpSpeed, gravity;
     
@@ -73,7 +77,6 @@ public class Player extends GameObject implements Disposable {
     protected TextureRegion actualRegion;
     protected PlayerState actualState = PlayerState.SPAWN;
     private boolean flipX = false, flipY = false;
-    protected float animationTimer = 0;
     
     public Player(Level level, float posX, float posY) {
         super(level);
@@ -105,8 +108,7 @@ public class Player extends GameObject implements Disposable {
     }
     
     public void render(SpriteBatch batch) {
-        if (health > 0)
-            sprite.draw(batch);
+        sprite.draw(batch);
     }
     
     
@@ -119,13 +121,19 @@ public class Player extends GameObject implements Disposable {
         attack = Gdx.input.isKeyPressed(Input.Keys.X);
         jump = Gdx.input.isKeyPressed(Input.Keys.Z);
         
-        if ((left && right) || (attack && isAttacking && !finishedAttack))
+        if ((left && right) || 
+                (!isJumping &&attack && isAttacking && !finishedAttack)) {
             left = right = false;
+        }
         
         
         if (attack && !isAttacking && !tookDamage) {
-            isAttacking = true;
-            swordSound.play();
+            if (!isJumping) {
+                isAttacking = true;
+                swordSound.play();
+            } else {
+                isSpinning = true;
+            }
         }
     }
     
@@ -151,13 +159,21 @@ public class Player extends GameObject implements Disposable {
             if (animations.get(actualState).isAnimationFinished(animationTimer))
                 isSpawning = false;
         }
+        else if (health < 0) {
+            actualState = PlayerState.DEAD;
+        }
         else if (tookDamage && iFrames > 0) {
             actualState = PlayerState.HURT;
             if (iFrames < 0.5f)
                 jump = right = left = false;
         }
-        else if (isJumping)
-            actualState = PlayerState.JUMP;
+        else if (isSpinning) {
+            if (previousState != PlayerState.SPIN)
+                animationTimer = 0;
+            actualState = PlayerState.SPIN;
+            if (animations.get(actualState).isAnimationFinished(animationTimer))
+                isSpinning = false;
+        }
         else if (isAttacking) {
             if (previousState != PlayerState.STAB)
                 animationTimer = 0;
@@ -165,6 +181,8 @@ public class Player extends GameObject implements Disposable {
             if (animations.get(actualState).isAnimationFinished(animationTimer))
                 finishedAttack = true;
         }
+        else if (isJumping)
+            actualState = PlayerState.JUMP;
         else if ((right || left) && !isAttacking && !attack) {
             if (walkTimer < timeToRunSpeed)
                 actualState = PlayerState.HALF_WALK;
