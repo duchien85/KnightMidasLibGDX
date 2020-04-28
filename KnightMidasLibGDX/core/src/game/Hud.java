@@ -17,6 +17,8 @@ import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Stack;
 
 public class Hud implements Disposable {
     
@@ -25,7 +27,7 @@ public class Hud implements Disposable {
     private int actualHudPage = 1, firstHudPage = 1, lastHudPage = 7;
     
     protected int frameCounter = 0;
-    protected int frameUpdateDelay = 3;
+    protected int frameUpdateDelay;
     
     protected boolean[] debug;
     protected boolean showHud = false;
@@ -46,7 +48,7 @@ public class Hud implements Disposable {
     private Table[] tables;
     private Label[] pageLabels;
     
-    private Label right, left, attack, jump;
+    private Label bufferRight, bufferLeft, bufferAttack, bufferJump;
     private Label isJumping, canJump, canSpin, smallJump, tookDamage, isSpawning,
             isAttacking, isSpinning, finishedAttack, hasExitKey, finishedLevel;
     private Label headTopCollided, bodyRightCollided, bodyLeftCollided,
@@ -57,10 +59,12 @@ public class Hud implements Disposable {
     private Label walkTimer, actualState, animationTimer, iFrames;
     
     
-    public Hud(SpriteBatch batch) {
+    public Hud(int frameUpdateDelay, SpriteBatch batch) {
         this.viewport = new FitViewport(Main.DISPLAY_PIXEL_WIDTH,
                 Main.DISPLAY_PIXELS_HEIGHT, new OrthographicCamera());
         stage = new Stage(this.viewport, batch);
+        
+        this.frameUpdateDelay = frameUpdateDelay;
         
         createInput();
         
@@ -100,10 +104,10 @@ public class Hud implements Disposable {
     private void createComponents() {
         
         //Pagina 2
-        right = new Label("right: ", labelStyle);
-        left = new Label("left: ", labelStyle);
-        attack = new Label("attack: ", labelStyle);
-        jump = new Label("jump: ", labelStyle);
+        bufferRight = new Label("right: ", labelStyle);
+        bufferLeft = new Label("left: ", labelStyle);
+        bufferAttack = new Label("attack: ", labelStyle);
+        bufferJump = new Label("jump: ", labelStyle);
         
         //Pagina 3
         isJumping = new Label("isJumping: ", labelStyle);
@@ -166,10 +170,10 @@ public class Hud implements Disposable {
         temp.clear();
         
         //Pagina 2
-        temp.add(right);
-        temp.add(left);
-        temp.add(attack);
-        temp.add(jump);
+        temp.add(bufferRight);
+        temp.add(bufferLeft);
+        temp.add(bufferAttack);
+        temp.add(bufferJump);
         addToTable(1, temp);
         temp.clear();
         
@@ -246,10 +250,10 @@ public class Hud implements Disposable {
             frameCounter = 0;
             
             //Pagina 2
-            right.setText("right: " + screen.h1.right);
-            left.setText("left: " + screen.h1.left);
-            attack.setText("attack: " + screen.h1.attack);
-            jump.setText("jump: " + screen.h1.jump);
+            bufferRight.setText("buffer right: " + screen.h1.right);
+            bufferLeft.setText("buffer left: " + screen.h1.left);
+            bufferAttack.setText("buffer attack: " + screen.h1.attack);
+            bufferJump.setText("buffer jump: " + screen.h1.jump);
 
             //Pagina 3
             isJumping.setText("isJumping: " + screen.h1.isJumping);
@@ -294,7 +298,7 @@ public class Hud implements Disposable {
                     + String.format("%.2f", screen.h1.knockbackSpeed.y));
 
             //Pagina 7
-            actualState.setText("actualState: " + screen.h1.currentAnim);
+            actualState.setText("actualState: " + screen.h1.currentState);
             walkTimer.setText("walkTimer: (" 
                     + screen.h1.walkTimer.active + ") " +
                     + screen.h1.walkTimer.time);

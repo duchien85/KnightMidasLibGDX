@@ -58,7 +58,7 @@ public class PlayScreen implements Screen {
         music1.play();
         
         //Hud
-        hud = new Hud(main.batch);
+        hud = new Hud(20, main.batch);
         
         //Level
         level = new Level(StringPaths.tiled_ExampleLevel);

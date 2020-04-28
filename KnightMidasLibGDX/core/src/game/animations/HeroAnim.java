@@ -9,6 +9,7 @@ public enum HeroAnim {
     STAB("heroStab"),
     HURT("heroHurt"),
     JUMP("heroJump"),
+    FALL("heroFall"),
     SPAWN("heroSpawn"),
     SPIN("heroSpin"),
     DEAD("heroDead");

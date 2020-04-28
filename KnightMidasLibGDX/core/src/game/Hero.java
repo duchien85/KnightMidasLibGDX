@@ -22,22 +22,22 @@ import com.badlogic.gdx.utils.Disposable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Stack;
 import utils.Timer;
 
 public class Hero extends GameObject implements Disposable {
+    
+    //NECESSÁRIAS
     
     //Input
     protected boolean left, right, attack, jump;
     
     //Logic
+    protected HeroStateMachine stateMachine;
     protected HeroState currentState = HeroState.SPAWN,
             previousState = HeroState.SPAWN;
-    protected boolean isJumping = false, isAttacking = false, finishedAttack = false, 
-            isSpinning = false, canJump = true, canSpin = true, 
-            canMoveLeft = true, canMoveRight = true, smallJump = false,
-            tookDamage = false, isSpawning = true, hasExitKey = false, 
-            finishedLevel = false;
     
+    //Collisions
     protected boolean headTopCollided = false, bodyLeftCollided = false,
                 bodyRightCollided = false, feetBottomCollided = false;
     
@@ -51,6 +51,17 @@ public class Hero extends GameObject implements Disposable {
     //Audio
     private Sound swordSound;
     
+    //Design Choices
+    protected float jumpHeight = 6f, jumpHalfDurationTime = 0.5f,
+            timeToRunSpeed = 6 / 30f;
+    protected float spinHeight = 6f;
+    //protected float spinHalfDurationTime = 0.5f;
+    protected float walkSpeed = 3.5f, runSpeed = 8f;
+    protected Vector2 knockbackSpeed = new Vector2(3f, 2f);
+    
+    //Calculated
+    protected float jumpSpeed, spinSpeed, gravity;
+    
     //Physics
     protected Vector2 pos;
     protected Vector2 bodyOffset, headOffset, feetOffset, spriteRectOffset,
@@ -60,23 +71,26 @@ public class Hero extends GameObject implements Disposable {
     protected Vector2 futurePosOffset;
     protected Vector2 velocity = Vector2.Zero;
     
-    protected float jumpHeight = 6f, jumpHalfDurationTime = 0.5f,
-            timeToRunSpeed = 6 / 30f;
-    protected float spinHeight = 6f, spinHalfDurationTime = 0.5f;
-    protected float walkSpeed = 3.5f, runSpeed = 8f;
-    protected Vector2 knockbackSpeed = new Vector2(3f, 2f);
-    
-    protected float jumpSpeed, spinSpeed, gravity;
-    
     //Render
     protected Sprite sprite;
     private float spriteWidthPixels = 64, spriteHeightPixels = 64;
     private Texture spritesheet;
-    private HashMap<HeroAnim, Animation<TextureRegion>> animations;
+    protected HashMap<HeroAnim, Animation<TextureRegion>> animations;
     
     protected TextureRegion currentRegion;
     protected HeroAnim currentAnim = HeroAnim.SPAWN;
     private boolean flipX = false, flipY = false;
+    
+    
+    
+    //INUTEIS
+    
+    //Logic
+    protected boolean isJumping = false, isAttacking = false, finishedAttack = false, 
+            isSpinning = false, canJump = true, canSpin = true, 
+            canMoveLeft = true, canMoveRight = true, smallJump = false,
+            tookDamage = false, isSpawning = true, hasExitKey = false, 
+            finishedLevel = false;
     
     
     public Hero(Level level, float posX, float posY) {
@@ -88,7 +102,10 @@ public class Hero extends GameObject implements Disposable {
         
         gravity = (-2*jumpHeight) / (jumpHalfDurationTime * jumpHalfDurationTime);
         jumpSpeed = 2 * jumpHeight / jumpHalfDurationTime;
-        spinSpeed = 2 * spinHeight / spinHalfDurationTime;
+        //spinSpeed = 2 * spinHeight / spinHalfDurationTime;
+        spinSpeed = 2 * spinHeight / jumpHalfDurationTime;
+        
+        stateMachine = new HeroStateMachine(this);
     }
     
     public void createBodies(float posX, float posY) {
@@ -178,9 +195,9 @@ public class Hero extends GameObject implements Disposable {
         
         logic(dt);
         
-        //state();
+        stateMachine.state();
         
-        changeState();
+        //changeState();
         
         physics(dt);
         
@@ -243,61 +260,6 @@ public class Hero extends GameObject implements Disposable {
         }
     }
     
-    private void state() {
-        
-        switch (currentState) {
-            
-            case SPAWN:
-                currentAnim = HeroAnim.SPAWN;
-                
-                if (animations.get(currentAnim).isAnimationFinished(animationTimer.time))
-                    transitionToState(HeroState.SPAWN, HeroState.IDLE);
-                break;
-                
-            case IDLE:
-                currentAnim = HeroAnim.IDLE;
-                
-                if (right || left)
-                    transitionToState(HeroState.IDLE, HeroState.WALK);
-                break;
-                
-            case WALK:
-                currentAnim = HeroAnim.WALK;
-                
-                if (!right && !left)
-                    transitionToState(HeroState.WALK, HeroState.IDLE);
-                break;
-                
-            case RUN:
-                currentAnim = HeroAnim.RUN;
-                break;
-                
-            case JUMP:
-                currentAnim = HeroAnim.JUMP;
-                break;
-                
-            case FALL:
-                currentAnim = HeroAnim.JUMP;
-                break;
-                
-            case STAB:
-                currentAnim = HeroAnim.STAB;
-                break;
-                
-            case SPIN:
-                currentAnim = HeroAnim.SPIN;
-                break;
-                
-            case HURT:
-                currentAnim = HeroAnim.HURT;
-                break;
-                
-            case DEAD:
-                currentAnim = HeroAnim.DEAD;
-                break;
-        }
-    }
-    
     private void changeState() {
         HeroAnim previousState = currentAnim;
         
@@ -347,11 +309,11 @@ public class Hero extends GameObject implements Disposable {
     
     private void physics(float dt) {
         
+        futurePosOffset = new Vector2(0, 0);
+        
         //Setting speeds
         if (currentState == HeroState.HURT && iFramesTimer.time < 0.5f)
             velocity.x = knockbackSpeed.x;
-        futurePosOffset = new Vector2(0, 0);
-        
         
         if (currentState == HeroState.HURT) {
             velocity.y = knockbackSpeed.y;
@@ -371,6 +333,15 @@ public class Hero extends GameObject implements Disposable {
                 velocity.y = 0;
             }
         }
+
+
+        if (currentState == HeroState.WALK)
+            velocity.x = walkSpeed;
+        else if (currentState == HeroState.RUN)
+            velocity.x = runSpeed;
+        else if (currentState == HeroState.IDLE 
+                || currentState == HeroState.JUMP)
+            velocity.x = 0;
         
         
         //Calculating position
@@ -379,11 +350,6 @@ public class Hero extends GameObject implements Disposable {
             
         } else if (right) {
             if ((!attack && !isAttacking) || isJumping) {
-                walkTimer.start();
-                if (walkTimer.time < timeToRunSpeed)
-                    velocity.x = walkSpeed;
-                else
-                    velocity.x = runSpeed;
                 futurePosOffset.x += velocity.x * dt;
             }
             flipX = false;
@@ -391,19 +357,12 @@ public class Hero extends GameObject implements Disposable {
             
         } else if (left) {
             if ((!attack && !isAttacking) || isJumping) {
-                walkTimer.start();
-                if (walkTimer.time < timeToRunSpeed)
-                    velocity.x = walkSpeed;
-                else
-                    velocity.x = runSpeed;
                 futurePosOffset.x -= velocity.x * dt;
             }
             flipX = true;
             swordHitbox.x = pos.x;
-        } else {
-            walkTimer.reset();
-            velocity.x = 0;
         }
+        
         
         velocity.y += gravity * dt;
         futurePosOffset.y += velocity.y * dt;
@@ -563,10 +522,6 @@ public class Hero extends GameObject implements Disposable {
         currentState = HeroState.HURT;
         health -= damage;
         tookDamage = true;
-    }
-    
-    private void transitionToState(HeroState oldState, HeroState newState) {
-        currentState = newState;
     }
     
     
