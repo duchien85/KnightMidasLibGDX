@@ -1,6 +1,8 @@
 
 package game;
 
+import utils.Units;
+import utils.StringPaths;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;

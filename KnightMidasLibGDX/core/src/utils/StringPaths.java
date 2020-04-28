@@ -1,5 +1,5 @@
 
-package game;
+package utils;
 
 public abstract class StringPaths {
     

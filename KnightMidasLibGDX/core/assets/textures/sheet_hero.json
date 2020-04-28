@@ -57,7 +57,7 @@
          ]
 	  },
 	  {
-         "name":"heroHalfWalk",
+         "name":"heroWalk",
          "time":10,
          "framesLength":3,
 		 "playMode":2,
@@ -83,7 +83,7 @@
          ]
 	  },
 	  {
-         "name":"heroFullWalk",
+         "name":"heroRun",
          "time":14,
          "framesLength":3,
 		 "playMode":2,

@@ -1,6 +1,7 @@
 
 package game;
 
+import utils.StringPaths;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -29,7 +30,7 @@ public class PlayScreen implements Screen {
     //Audio
     private Music music1;
     private final int volumeUp = Input.Keys.W, volumeDown = Input.Keys.Q;
-    private float volume = 1f;
+    private float volume = 0f;
     
     //Hud
     private Hud hud;
@@ -53,7 +54,7 @@ public class PlayScreen implements Screen {
         music1 = Gdx.audio.newMusic(
                 Gdx.files.internal(StringPaths.music_TutorialLevel));
         music1.setLooping(true);
-        music1.setVolume(1f);
+        music1.setVolume(volume);
         music1.play();
         
         //Hud

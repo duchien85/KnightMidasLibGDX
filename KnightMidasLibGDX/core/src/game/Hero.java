@@ -1,7 +1,9 @@
 
 package game;
 
-import game.animations.PlayerAnim;
+import utils.Units;
+import utils.StringPaths;
+import game.animations.HeroAnim;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Sound;
@@ -20,6 +22,7 @@ import com.badlogic.gdx.utils.Disposable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import utils.Timer;
 
 public class Hero extends GameObject implements Disposable {
     
@@ -27,18 +30,19 @@ public class Hero extends GameObject implements Disposable {
     protected boolean left, right, attack, jump;
     
     //Logic
+    protected HeroState currentState = HeroState.SPAWN,
+            previousState = HeroState.SPAWN;
     protected boolean isJumping = false, isAttacking = false, finishedAttack = false, 
             isSpinning = false, canJump = true, canSpin = true, 
-            canMoveLeft = true, canMoveRight = true, smallJump = false, 
+            canMoveLeft = true, canMoveRight = true, smallJump = false,
             tookDamage = false, isSpawning = true, hasExitKey = false, 
             finishedLevel = false;
-    protected float iFrames = 0;
     
     protected boolean headTopCollided = false, bodyLeftCollided = false,
                 bodyRightCollided = false, feetBottomCollided = false;
     
     //Timers
-    protected float walkTimer = 0f, jumpTimer = 1f, animationTimer = 0;
+    protected Timer walkTimer, iFramesTimer, animationTimer;
     
     //Health
     protected float health = 20f;
@@ -68,10 +72,10 @@ public class Hero extends GameObject implements Disposable {
     protected Sprite sprite;
     private float spriteWidthPixels = 64, spriteHeightPixels = 64;
     private Texture spritesheet;
-    private HashMap<PlayerAnim, Animation<TextureRegion>> animations;
+    private HashMap<HeroAnim, Animation<TextureRegion>> animations;
     
     protected TextureRegion currentRegion;
-    protected PlayerAnim currentAnim = PlayerAnim.SPAWN;
+    protected HeroAnim currentAnim = HeroAnim.SPAWN;
     private boolean flipX = false, flipY = false;
     
     
@@ -79,24 +83,104 @@ public class Hero extends GameObject implements Disposable {
         super(level);
         createBodies(posX, posY);
         createAnimations();
-        
-        swordSound = Gdx.audio.newSound(
-                Gdx.files.internal(StringPaths.sound_SwordSwish));
+        createTimers();
+        createSoundEffects();
         
         gravity = (-2*jumpHeight) / (jumpHalfDurationTime * jumpHalfDurationTime);
         jumpSpeed = 2 * jumpHeight / jumpHalfDurationTime;
         spinSpeed = 2 * spinHeight / spinHalfDurationTime;
     }
     
+    public void createBodies(float posX, float posY) {
+        parts = new ArrayList<Rectangle>();
+        
+        bodyOffset = new Vector2(Units.pixelsMeters(24), Units.pixelsMeters(2));
+        headOffset = new Vector2(Units.pixelsMeters(28), Units.pixelsMeters(25));
+        feetOffset = new Vector2(Units.pixelsMeters(28), Units.pixelsMeters(1));
+        spriteRectOffset = new Vector2(0, 0);
+        hurtboxOffset = new Vector2(Units.pixelsMeters(24), Units.pixelsMeters(2));
+        swordHitboxOffset = new Vector2(Units.pixelsMeters(36), Units.pixelsMeters(1));
+        
+        pos = new Vector2(posX, posY);
+        body = new Rectangle(pos.x + bodyOffset.x, posY + bodyOffset.y,
+                Units.pixelsMeters(16), Units.pixelsMeters(24));
+        
+        head = new Rectangle(pos.x + headOffset.x, posY + headOffset.y,
+                Units.pixelsMeters(8), Units.pixelsMeters(3));
+        
+        feet = new Rectangle(posX + feetOffset.x, posY + feetOffset.y,
+                Units.pixelsMeters(8), Units.pixelsMeters(3));
+        
+        spriteRect = new Rectangle(posX, posY, 
+                Units.pixelsMeters(spriteWidthPixels), Units.pixelsMeters(spriteHeightPixels));
+        
+        hurtbox = new Rectangle(posX + hurtboxOffset.x, posY + hurtboxOffset.y,
+                Units.pixelsMeters(16), Units.pixelsMeters(23));
+        
+        swordHitbox = new Rectangle(posX + swordHitboxOffset.x, posY + swordHitboxOffset.y,
+                Units.pixelsMeters(26), Units.pixelsMeters(12));
+        
+        parts.add(body);
+        parts.add(feet);
+        parts.add(head);
+        parts.add(spriteRect);
+        parts.add(hurtbox);
+        parts.add(swordHitbox);
+    }
+    
+    public void createAnimations() {
+        
+        sprite = new Sprite();
+        sprite.setBounds(spriteRect.x, spriteRect.y,
+                spriteRect.width, spriteRect.height);
+        sprite.setScale(1, 1);
+        
+        spritesheet = new Texture(StringPaths.texture_Hero);
+        
+        animations = new HashMap<>();
+        
+        CustomAnimationBundle bundle = CustomAnimationJsonReader.getFrames(StringPaths.json_Hero);
+        CustomAnimation anim;
+        
+        for (HeroAnim state : HeroAnim.values()) {
+            anim = bundle.getByName(state.getStateName());
+            
+            if (anim != null) {
+                animations.put(state, new Animation(
+                    1f/anim.time,
+                    CustomAnimationHelper.getTextureRegions(anim.frames, spritesheet),
+                    CustomAnimationHelper.getPlayMode(anim.playMode)));
+            }
+        }
+    }
+    
+    public void createTimers() {
+        
+        walkTimer = new Timer();
+        animationTimer = new Timer();
+        iFramesTimer = new Timer();
+        
+        animationTimer.start();
+    }
+    
+    public void createSoundEffects() {
+        
+        swordSound = Gdx.audio.newSound(
+                Gdx.files.internal(StringPaths.sound_SwordSwish));
+    }
+    
+    
     public void update(float dt) {
         
         getInput();
         
-        iFrames(dt);
+        timers(dt);
+        
+        logic(dt);
+        
+        //state();
         
         changeState();
-        
-        logic();
         
         physics(dt);
         
@@ -119,12 +203,19 @@ public class Hero extends GameObject implements Disposable {
         attack = Gdx.input.isKeyPressed(Input.Keys.X);
         jump = Gdx.input.isKeyPressed(Input.Keys.Z);
         
-        if ((left && right) || 
-                (!isJumping &&attack && isAttacking && !finishedAttack)) {
+        if (left && right)
             left = right = false;
-        }
+    }
+    
+    private void timers(float dt) {
+        walkTimer.update(dt);
+        animationTimer.update(dt);
+        iFramesTimer.update(dt);
+    }
+    
+    private void logic(float dt) {
         
-        
+        //Pertencia do getInput
         if (attack && !isAttacking && !tookDamage) {
             if (!isJumping) {
                 isAttacking = true;
@@ -133,85 +224,136 @@ public class Hero extends GameObject implements Disposable {
                 isSpinning = true;
             }
         }
-    }
-    
-    private void iFrames(float dt) {
         
-        //iFrames
-        if (tookDamage)
-            iFrames += dt;
-        else
-            iFrames = 0;
-        
-        if (iFrames >= 1f) {
-            iFrames = 0;
-            tookDamage = false;
-        }
-    }
-    
-    private void changeState() {
-        PlayerAnim previousState = currentAnim;
-        
-        if (isSpawning) {
-            currentAnim = PlayerAnim.SPAWN;
-            if (animations.get(currentAnim).isAnimationFinished(animationTimer))
-                isSpawning = false;
-        }
-        else if (health < 0) {
-            currentAnim = PlayerAnim.DEAD;
-        }
-        else if (tookDamage && iFrames > 0) {
-            currentAnim = PlayerAnim.HURT;
-            if (iFrames < 0.5f)
-                jump = right = left = false;
-        }
-        else if (isSpinning) {
-            if (previousState != PlayerAnim.SPIN)
-                animationTimer = 0;
-            currentAnim = PlayerAnim.SPIN;
-            if (animations.get(currentAnim).isAnimationFinished(animationTimer))
-                isSpinning = false;
-        }
-        else if (isAttacking) {
-            if (previousState != PlayerAnim.STAB)
-                animationTimer = 0;
-            currentAnim = PlayerAnim.STAB;
-            if (animations.get(currentAnim).isAnimationFinished(animationTimer))
-                finishedAttack = true;
-        }
-        else if (isJumping)
-            currentAnim = PlayerAnim.JUMP;
-        else if ((right || left)
-                && (!isAttacking && !attack) && (canMoveLeft && canMoveRight)) {
-            if (walkTimer < timeToRunSpeed)
-                currentAnim = PlayerAnim.HALF_WALK;
-            else
-                currentAnim = PlayerAnim.FULL_WALK;
-        }
-        else
-            currentAnim = PlayerAnim.IDLE;
-        
-        
-        if (currentAnim != previousState)
-            animationTimer = 0;
-    }
-    
-    private void logic() {
+        //Logic
         if (finishedAttack && !attack && isAttacking) {
             isAttacking = false;
             finishedAttack = false;
         }
+        
+        //iFrames
+        if (tookDamage)
+            iFramesTimer.start();
+        else
+            iFramesTimer.reset();
+        
+        if (iFramesTimer.time >= 1f) {
+            iFramesTimer.reset();
+            tookDamage = false;
+        }
+    }
+    
+    private void state() {
+        
+        switch (currentState) {
+            
+            case SPAWN:
+                currentAnim = HeroAnim.SPAWN;
+                
+                if (animations.get(currentAnim).isAnimationFinished(animationTimer.time))
+                    transitionToState(HeroState.SPAWN, HeroState.IDLE);
+                break;
+                
+            case IDLE:
+                currentAnim = HeroAnim.IDLE;
+                
+                if (right || left)
+                    transitionToState(HeroState.IDLE, HeroState.WALK);
+                break;
+                
+            case WALK:
+                currentAnim = HeroAnim.WALK;
+                
+                if (!right && !left)
+                    transitionToState(HeroState.WALK, HeroState.IDLE);
+                break;
+                
+            case RUN:
+                currentAnim = HeroAnim.RUN;
+                break;
+                
+            case JUMP:
+                currentAnim = HeroAnim.JUMP;
+                break;
+                
+            case FALL:
+                currentAnim = HeroAnim.JUMP;
+                break;
+                
+            case STAB:
+                currentAnim = HeroAnim.STAB;
+                break;
+                
+            case SPIN:
+                currentAnim = HeroAnim.SPIN;
+                break;
+                
+            case HURT:
+                currentAnim = HeroAnim.HURT;
+                break;
+                
+            case DEAD:
+                currentAnim = HeroAnim.DEAD;
+                break;
+        }
+    }
+    
+    private void changeState() {
+        HeroAnim previousState = currentAnim;
+        
+        if (isSpawning) {
+            currentAnim = HeroAnim.SPAWN;
+            if (animations.get(currentAnim).isAnimationFinished(animationTimer.time))
+                isSpawning = false;
+        }
+        else if (health < 0) {
+            currentAnim = HeroAnim.DEAD;
+        }
+        else if (tookDamage && iFramesTimer.time > 0) {
+            currentAnim = HeroAnim.HURT;
+            if (iFramesTimer.time < 0.5f)
+                jump = right = left = false;
+        }
+        else if (isSpinning) {
+            if (previousState != HeroAnim.SPIN)
+                animationTimer.clear();
+            currentAnim = HeroAnim.SPIN;
+            if (animations.get(currentAnim).isAnimationFinished(animationTimer.time))
+                isSpinning = false;
+        }
+        else if (isAttacking) {
+            if (previousState != HeroAnim.STAB)
+                animationTimer.clear();
+            currentAnim = HeroAnim.STAB;
+            if (animations.get(currentAnim).isAnimationFinished(animationTimer.time))
+                finishedAttack = true;
+        }
+        else if (isJumping)
+            currentAnim = HeroAnim.JUMP;
+        else if ((right || left)
+                && (!isAttacking && !attack) && (canMoveLeft && canMoveRight)) {
+            if (walkTimer.time < timeToRunSpeed)
+                currentAnim = HeroAnim.WALK;
+            else
+                currentAnim = HeroAnim.RUN;
+        }
+        else
+            currentAnim = HeroAnim.IDLE;
+        
+        
+        if (currentAnim != previousState)
+            animationTimer.clear();
     }
     
     private void physics(float dt) {
         
         //Setting speeds
-        if (currentAnim == PlayerAnim.HURT && iFrames < 0.5f)
+        if (currentState == HeroState.HURT && iFramesTimer.time < 0.5f)
             velocity.x = knockbackSpeed.x;
         futurePosOffset = new Vector2(0, 0);
         
         
-        if (currentAnim == PlayerAnim.HURT) {
+        if (currentState == HeroState.HURT) {
             velocity.y = knockbackSpeed.y;
         } else if (isSpinning && canSpin) {
             velocity.y = spinSpeed;
@@ -232,13 +374,13 @@ public class Hero extends GameObject implements Disposable {
         
         
         //Calculating position
-        if (currentAnim == PlayerAnim.HURT) {
+        if (currentState == HeroState.HURT) {
             futurePosOffset.x += knockbackSpeed.x * dt;
             
         } else if (right) {
             if ((!attack && !isAttacking) || isJumping) {
-                walkTimer += dt;
-                if (walkTimer < timeToRunSpeed)
+                walkTimer.start();
+                if (walkTimer.time < timeToRunSpeed)
                     velocity.x = walkSpeed;
                 else
                     velocity.x = runSpeed;
@@ -249,8 +391,8 @@ public class Hero extends GameObject implements Disposable {
             
         } else if (left) {
             if ((!attack && !isAttacking) || isJumping) {
-                walkTimer += dt;
-                if (walkTimer < timeToRunSpeed)
+                walkTimer.start();
+                if (walkTimer.time < timeToRunSpeed)
                     velocity.x = walkSpeed;
                 else
                     velocity.x = runSpeed;
@@ -259,7 +401,7 @@ public class Hero extends GameObject implements Disposable {
             flipX = true;
             swordHitbox.x = pos.x;
         } else {
-            walkTimer = 0;
+            walkTimer.reset();
             velocity.x = 0;
         }
         
@@ -341,7 +483,7 @@ public class Hero extends GameObject implements Disposable {
             
             if (futureHurtboxPosition.overlaps(snake.body) && snake.isAlive) {
                 if (!isSpinning) {
-                    if (iFrames == 0)
+                    if (iFramesTimer.time == 0)
                         getHurt(snake.damage);
                     
                 } else {
@@ -390,8 +532,7 @@ public class Hero extends GameObject implements Disposable {
     
     private void sprite(float dt) {
         
-        animationTimer += dt;
-        currentRegion = animations.get(currentAnim).getKeyFrame(animationTimer);
+        currentRegion = animations.get(currentAnim).getKeyFrame(animationTimer.time);
         sprite.setRegion(currentRegion);
         sprite.setPosition(spriteRect.x, spriteRect.y);
         sprite.setFlip(flipX, flipY);
@@ -419,74 +560,15 @@ public class Hero extends GameObject implements Disposable {
     }
     
     private void getHurt(float damage) {
-        currentAnim = PlayerAnim.HURT;
+        currentState = HeroState.HURT;
         health -= damage;
         tookDamage = true;
     }
     
-    
-    public void createBodies(float posX, float posY) {
-        parts = new ArrayList<Rectangle>();
-        
-        bodyOffset = new Vector2(Units.pixelsMeters(24), Units.pixelsMeters(2));
-        headOffset = new Vector2(Units.pixelsMeters(28), Units.pixelsMeters(25));
-        feetOffset = new Vector2(Units.pixelsMeters(28), Units.pixelsMeters(1));
-        spriteRectOffset = new Vector2(0, 0);
-        hurtboxOffset = new Vector2(Units.pixelsMeters(24), Units.pixelsMeters(2));
-        swordHitboxOffset = new Vector2(Units.pixelsMeters(36), Units.pixelsMeters(1));
-        
-        pos = new Vector2(posX, posY);
-        body = new Rectangle(pos.x + bodyOffset.x, posY + bodyOffset.y,
-                Units.pixelsMeters(16), Units.pixelsMeters(24));
-        
-        head = new Rectangle(pos.x + headOffset.x, posY + headOffset.y,
-                Units.pixelsMeters(8), Units.pixelsMeters(3));
-        
-        feet = new Rectangle(posX + feetOffset.x, posY + feetOffset.y,
-                Units.pixelsMeters(8), Units.pixelsMeters(3));
-        
-        spriteRect = new Rectangle(posX, posY, 
-                Units.pixelsMeters(spriteWidthPixels), Units.pixelsMeters(spriteHeightPixels));
-        
-        hurtbox = new Rectangle(posX + hurtboxOffset.x, posY + hurtboxOffset.y,
-                Units.pixelsMeters(16), Units.pixelsMeters(23));
-        
-        swordHitbox = new Rectangle(posX + swordHitboxOffset.x, posY + swordHitboxOffset.y,
-                Units.pixelsMeters(26), Units.pixelsMeters(12));
-        
-        parts.add(body);
-        parts.add(feet);
-        parts.add(head);
-        parts.add(spriteRect);
-        parts.add(hurtbox);
-        parts.add(swordHitbox);
+    private void transitionToState(HeroState oldState, HeroState newState) {
+        currentState = newState;
     }
     
-    public void createAnimations() {
-        
-        sprite = new Sprite();
-        sprite.setBounds(spriteRect.x, spriteRect.y,
-                spriteRect.width, spriteRect.height);
-        sprite.setScale(1, 1);
-        
-        spritesheet = new Texture(StringPaths.texture_Hero);
-        
-        animations = new HashMap<>();
-        
-        CustomAnimationBundle bundle = CustomAnimationJsonReader.getFrames(StringPaths.json_Hero);
-        CustomAnimation anim;
-        
-        for (PlayerAnim state : PlayerAnim.values()) {
-            anim = bundle.getByName(state.getStateName());
-            
-            if (anim != null) {
-                animations.put(state, new Animation(
-                    1f/anim.time,
-                    CustomAnimationHelper.getTextureRegions(anim.frames, spritesheet),
-                    CustomAnimationHelper.getPlayMode(anim.playMode)));
-            }
-        }
-    }
     
     @Override
     public void dispose() {

@@ -1,7 +1,8 @@
 
 package game;
 
-import game.animations.SnakeState;
+import utils.Units;
+import utils.StringPaths;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;

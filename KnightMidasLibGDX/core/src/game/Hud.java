@@ -1,6 +1,7 @@
 
 package game;
 
+import utils.StringPaths;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
@@ -53,7 +54,7 @@ public class Hud implements Disposable {
     private Label position, futurePositionOffset, velocity, jumpSpeed, gravity;
     private Label jumpHeight, jumpHalfDurationTime, timeToRunSpeed,
             walkSpeed, runSpeed, knockbackSpeed;
-    private Label walkTimer, jumpTimer, actualState, animationTimer, iFrames;
+    private Label walkTimer, actualState, animationTimer, iFrames;
     
     
     public Hud(SpriteBatch batch) {
@@ -140,7 +141,6 @@ public class Hud implements Disposable {
         
         //Pagina 7
         walkTimer = new Label("walkTimer: ", labelStyle);
-        jumpTimer = new Label("jumpTimer: ", labelStyle);
         actualState = new Label("actualState: ", labelStyle);
         animationTimer = new Label("animationTimer: ", labelStyle);
         iFrames = new Label("iFrames: ", labelStyle);
@@ -218,7 +218,6 @@ public class Hud implements Disposable {
         //Pagina 7
         temp.add(actualState);
         temp.add(walkTimer);
-        temp.add(jumpTimer);
         temp.add(animationTimer);
         temp.add(iFrames);
         addToTable(6, temp);
@@ -296,10 +295,16 @@ public class Hud implements Disposable {
 
             //Pagina 7
             actualState.setText("actualState: " + screen.h1.currentAnim);
-            walkTimer.setText("walkTimer: " + screen.h1.walkTimer);
-            jumpTimer.setText("jumpTimer: " + screen.h1.jumpTimer);
-            animationTimer.setText("animationTimer: " + screen.h1.animationTimer);
-            iFrames.setText("iFrames: " + screen.h1.iFrames);
+            walkTimer.setText("walkTimer: (" 
+                    + screen.h1.walkTimer.active + ") " +
+                    + screen.h1.walkTimer.time);
+            
+            animationTimer.setText("animationTimer: (" 
+                    + screen.h1.animationTimer.active + ") " +
+                    + screen.h1.animationTimer.time);
+            
+            iFrames.setText("iFrames: (" + screen.h1.iFramesTimer.active 
+                    + ") " + screen.h1.iFramesTimer.time);
 
             stage.clear();
             stage.addActor(tables[actualHudPage-1]);

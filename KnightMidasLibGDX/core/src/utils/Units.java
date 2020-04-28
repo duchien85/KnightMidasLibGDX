@@ -1,5 +1,7 @@
 
-package game;
+package utils;
+
+import game.Main;
 
 public abstract class Units {
     

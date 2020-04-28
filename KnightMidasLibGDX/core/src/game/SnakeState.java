@@ -1,5 +1,5 @@
 
-package game.animations;
+package game;
 
 public enum SnakeState {
     
