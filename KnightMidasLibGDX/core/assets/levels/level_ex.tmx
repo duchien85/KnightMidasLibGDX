@@ -78,9 +78,6 @@
   <object id="97" x="2128" y="384">
    <point/>
   </object>
-  <object id="148" x="352" y="416">
-   <point/>
-  </object>
  </objectgroup>
  <objectgroup id="11" name="key">
   <object id="91" x="2336" y="352" width="16" height="16"/>

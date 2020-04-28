@@ -32,6 +32,7 @@ public class Player extends GameObject implements Disposable {
     protected boolean finishedAttack = false;
     protected boolean isSpinning = false;
     protected boolean canJump = true;
+    protected boolean canSpin = true;
     protected boolean smallJump = false;
     protected boolean tookDamage = false;
     protected boolean isSpawning = true;
@@ -45,7 +46,6 @@ public class Player extends GameObject implements Disposable {
     //Timers
     protected float walkTimer = 0f, jumpTimer = 1f;
     protected float animationTimer = 0;
-    protected float spinTimer = 0f;
     
     //Health
     protected float health = 20f;
@@ -63,10 +63,11 @@ public class Player extends GameObject implements Disposable {
     
     protected float jumpHeight = 6f, jumpHalfDurationTime = 0.5f,
             timeToRunSpeed = 6 / 30f;
+    protected float spinHeight = 6f, spinHalfDurationTime = 0.5f;
     protected float walkSpeed = 3.5f, runSpeed = 8f;
     protected Vector2 knockbackSpeed = new Vector2(3f, 2f);
     
-    protected float jumpSpeed, gravity;
+    protected float jumpSpeed, spinSpeed, gravity;
     
     //Render
     protected Sprite sprite;
@@ -78,6 +79,7 @@ public class Player extends GameObject implements Disposable {
     protected PlayerState actualState = PlayerState.SPAWN;
     private boolean flipX = false, flipY = false;
     
+    
     public Player(Level level, float posX, float posY) {
         super(level);
         createBodies(posX, posY);
@@ -88,6 +90,7 @@ public class Player extends GameObject implements Disposable {
         
         gravity = (-2*jumpHeight) / (jumpHalfDurationTime * jumpHalfDurationTime);
         jumpSpeed = 2 * jumpHeight / jumpHalfDurationTime;
+        spinSpeed = 2 * spinHeight / spinHalfDurationTime;
     }
     
     public void update(float dt) {
@@ -131,7 +134,7 @@ public class Player extends GameObject implements Disposable {
             if (!isJumping) {
                 isAttacking = true;
                 swordSound.play();
-            } else {
+            } else if (canSpin) {
                 isSpinning = true;
             }
         }
@@ -192,7 +195,7 @@ public class Player extends GameObject implements Disposable {
         else
             actualState = PlayerState.IDLE;
         
-        //System.out.println(actualState + " e " + isJumping);
+        
         if (actualState != previousState)
             animationTimer = 0;
     }
@@ -214,6 +217,9 @@ public class Player extends GameObject implements Disposable {
         
         if (actualState == PlayerState.HURT) {
             velocity.y = knockbackSpeed.y;
+        } else if (isSpinning && canSpin) {
+            velocity.y = spinSpeed;
+            canSpin = false;
         } else if (jump && !isJumping && canJump) {
             isJumping = true;
             smallJump = false;
@@ -324,7 +330,7 @@ public class Player extends GameObject implements Disposable {
                     headTopCollided = true;
                     headCollided = true;
                 }
-
+                
             }
             
             if (bodyCollided && feetCollided) break;
@@ -338,19 +344,24 @@ public class Player extends GameObject implements Disposable {
             }
             
             if (futureHurtboxPosition.overlaps(snake.body) && snake.isAlive) {
-                if (iFrames == 0)
-                    getHurt(snake.damage);
+                if (!isSpinning) {
+                    if (iFrames == 0)
+                        getHurt(snake.damage);
+                    
+                } else {
+                    snake.getHurt(swordDamage);
+                }
             }
         }
         
-        if (futureBodyPosition.overlaps(actualLevel.key) && !hasExitKey) {
+        if (futureBodyPosition.overlaps(actualLevel.key) 
+                && !hasExitKey) {
             hasExitKey = true;
-            System.out.println("Got exit key!");
         }
         
-        if (futureBodyPosition.overlaps(actualLevel.chest) && hasExitKey && !finishedLevel) {
+        if (futureBodyPosition.overlaps(actualLevel.chest)
+                && hasExitKey && !finishedLevel) {
             finishedLevel = true;
-            System.out.println("Finished level!");
         }
         
         if (!feetBottomCollided && !headTopCollided)
@@ -365,6 +376,8 @@ public class Player extends GameObject implements Disposable {
         if (feetCollided) {
             isJumping = false;
             smallJump = false;
+            isSpinning = false;
+            canSpin = true;
             if (!jump && !isJumping && !canJump)
                 canJump = true;
             velocity.y = 0;
