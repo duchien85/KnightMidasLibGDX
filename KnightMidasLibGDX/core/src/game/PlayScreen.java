@@ -5,7 +5,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -19,7 +18,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 public class PlayScreen implements Screen {
     
     protected Main main;
-    protected Player p1;
+    protected Hero h1;
     
     //Graphics
     private final OrthographicCamera camera;
@@ -66,7 +65,7 @@ public class PlayScreen implements Screen {
         
         
         //Objects
-        p1 = new Player(level, 2, 4.1875f);
+        h1 = new Hero(level, 2, 4.1875f);
     }
 
     @Override
@@ -80,12 +79,12 @@ public class PlayScreen implements Screen {
     private void updateThings(float dt) {
         
         //Objects
-        p1.update(dt);
+        h1.update(dt);
         for (Snake snake : level.snakes)
             snake.update(dt);
         
         //Camera
-        camera.position.x = MathUtils.clamp(p1.body.x + p1.body.width / 2,
+        camera.position.x = MathUtils.clamp(h1.body.x + h1.body.width / 2,
                 15, Main.WORLD_WIDTH - 15);
         camera.update();
         
@@ -112,7 +111,7 @@ public class PlayScreen implements Screen {
         
         main.batch.setProjectionMatrix(camera.combined);
         main.batch.begin();
-        p1.render(main.batch);
+        h1.render(main.batch);
         for (Snake snake : level.snakes)
             snake.render(main.batch);
         main.batch.end();
@@ -133,19 +132,19 @@ public class PlayScreen implements Screen {
             debugRenderer.setProjectionMatrix(camera.combined);
             debugRenderer.begin(ShapeRenderer.ShapeType.Line);
             debugRenderer.setColor(Color.RED);
-            debugRenderer.rect(p1.body.x, p1.body.y, p1.body.width, p1.body.height);
+            debugRenderer.rect(h1.body.x, h1.body.y, h1.body.width, h1.body.height);
             debugRenderer.end();
             
             debugRenderer.setProjectionMatrix(camera.combined);
             debugRenderer.begin(ShapeRenderer.ShapeType.Line);
             debugRenderer.setColor(Color.BLUE);
-            debugRenderer.rect(p1.feet.x, p1.feet.y, p1.feet.width, p1.feet.height);
+            debugRenderer.rect(h1.feet.x, h1.feet.y, h1.feet.width, h1.feet.height);
             debugRenderer.end();
             
             debugRenderer.setProjectionMatrix(camera.combined);
             debugRenderer.begin(ShapeRenderer.ShapeType.Line);
             debugRenderer.setColor(Color.BLUE);
-            debugRenderer.rect(p1.head.x, p1.head.y, p1.head.width, p1.head.height);
+            debugRenderer.rect(h1.head.x, h1.head.y, h1.head.width, h1.head.height);
             debugRenderer.end();
         }
         
@@ -153,30 +152,30 @@ public class PlayScreen implements Screen {
         if (hud.debug[1]) {
             debugRenderer.setProjectionMatrix(camera.combined);
             debugRenderer.begin(ShapeRenderer.ShapeType.Line);
-            debugRenderer.setColor((p1.isAttacking && !p1.finishedAttack)
+            debugRenderer.setColor((h1.isAttacking && !h1.finishedAttack)
                     ? Color.RED : Color.YELLOW);
-            debugRenderer.rect(p1.swordHitbox.x, p1.swordHitbox.y,
-                    p1.swordHitbox.width, p1.swordHitbox.height);
+            debugRenderer.rect(h1.swordHitbox.x, h1.swordHitbox.y,
+                    h1.swordHitbox.width, h1.swordHitbox.height);
             debugRenderer.end();
             
             debugRenderer.setProjectionMatrix(camera.combined);
             debugRenderer.begin(ShapeRenderer.ShapeType.Line);
             debugRenderer.setColor(Color.YELLOW);
-            debugRenderer.rect(p1.mainHurtbox.x, p1.mainHurtbox.y,
-                    p1.mainHurtbox.width, p1.mainHurtbox.height);
+            debugRenderer.rect(h1.hurtbox.x, h1.hurtbox.y,
+                    h1.hurtbox.width, h1.hurtbox.height);
             debugRenderer.end();
             
             debugRenderer.setProjectionMatrix(camera.combined);
             debugRenderer.begin(ShapeRenderer.ShapeType.Line);
             debugRenderer.setColor(Color.YELLOW);
-            debugRenderer.rect(p1.spriteArea.x, p1.spriteArea.y,
-                    p1.spriteArea.width, p1.spriteArea.height);
+            debugRenderer.rect(h1.spriteRect.x, h1.spriteRect.y,
+                    h1.spriteRect.width, h1.spriteRect.height);
             debugRenderer.end();
             
             debugRenderer.setProjectionMatrix(camera.combined);
             debugRenderer.begin(ShapeRenderer.ShapeType.Filled);
             debugRenderer.setColor(Color.WHITE);
-            debugRenderer.circle(p1.position.x, p1.position.y, 1/8f);
+            debugRenderer.circle(h1.pos.x, h1.pos.y, 1/8f);
             debugRenderer.end();
         }
         
@@ -228,7 +227,7 @@ public class PlayScreen implements Screen {
         music1.dispose();
         
         //Objects
-        p1.dispose();
+        h1.dispose();
         for (Snake snake : level.snakes)
             snake.dispose();
         

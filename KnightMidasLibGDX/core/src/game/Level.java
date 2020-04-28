@@ -39,10 +39,10 @@ public class Level implements Disposable {
         for (MapObject object : list) {
             Rectangle rect = ((RectangleMapObject)object).getRectangle();
             walls.add( new Rectangle(
-                    UnitHelper.pixelsToMeters(rect.x),
-                    UnitHelper.pixelsToMeters(rect.y),
-                    UnitHelper.pixelsToMeters(rect.width),
-                    UnitHelper.pixelsToMeters(rect.height)));
+                    Units.pixelsMeters(rect.x),
+                    Units.pixelsMeters(rect.y),
+                    Units.pixelsMeters(rect.width),
+                    Units.pixelsMeters(rect.height)));
         }
     }
     
@@ -55,8 +55,8 @@ public class Level implements Disposable {
         for (MapObject object : list) {
             Rectangle rect = ((RectangleMapObject)object).getRectangle();
             snakes.add( new Snake(this,
-                    UnitHelper.pixelsToMeters(rect.x),
-                    UnitHelper.pixelsToMeters(rect.y)));
+                    Units.pixelsMeters(rect.x),
+                    Units.pixelsMeters(rect.y)));
         }
     }
     
@@ -69,10 +69,10 @@ public class Level implements Disposable {
             Rectangle rect = ((RectangleMapObject)object).getRectangle();
             if (list.size == 1) {
                 key = new Rectangle(
-                    UnitHelper.pixelsToMeters(rect.x),
-                    UnitHelper.pixelsToMeters(rect.y),
-                    UnitHelper.pixelsToMeters(rect.width),
-                    UnitHelper.pixelsToMeters(rect.height));
+                    Units.pixelsMeters(rect.x),
+                    Units.pixelsMeters(rect.y),
+                    Units.pixelsMeters(rect.width),
+                    Units.pixelsMeters(rect.height));
             }
         }
     }
@@ -86,10 +86,10 @@ public class Level implements Disposable {
             Rectangle rect = ((RectangleMapObject)object).getRectangle();
             if (list.size == 1) {
                 chest = new Rectangle(
-                    UnitHelper.pixelsToMeters(rect.x),
-                    UnitHelper.pixelsToMeters(rect.y),
-                    UnitHelper.pixelsToMeters(rect.width),
-                    UnitHelper.pixelsToMeters(rect.height));
+                    Units.pixelsMeters(rect.x),
+                    Units.pixelsMeters(rect.y),
+                    Units.pixelsMeters(rect.width),
+                    Units.pixelsMeters(rect.height));
             }
         }
     }

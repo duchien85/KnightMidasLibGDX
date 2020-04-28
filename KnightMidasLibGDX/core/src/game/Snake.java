@@ -10,7 +10,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Disposable;
-import game.animations.AnimationHelper;
+import game.animations.CustomAnimationHelper;
 import game.animations.CustomAnimation;
 import game.animations.CustomAnimationBundle;
 import game.animations.CustomAnimationJsonReader;
@@ -128,11 +128,11 @@ public class Snake extends GameObject implements Disposable {
     public void createBody(float posX, float posY) {
         
         position = new Vector2(posX, posY);
-        body = new Rectangle(posX + UnitHelper.pixelsToMeters(11), posY,
-            UnitHelper.pixelsToMeters(36), UnitHelper.pixelsToMeters(16));
+        body = new Rectangle(posX + Units.pixelsMeters(11), posY,
+            Units.pixelsMeters(36), Units.pixelsMeters(16));
         
         spriteArea = new Rectangle(posX, posY, 
-                UnitHelper.pixelsToMeters(spriteWidthPixels), UnitHelper.pixelsToMeters(spriteHeightPixels));
+                Units.pixelsMeters(spriteWidthPixels), Units.pixelsMeters(spriteHeightPixels));
         
     }
     
@@ -154,8 +154,8 @@ public class Snake extends GameObject implements Disposable {
             
             animations.put(state, new Animation(
                 1f/anim.time,
-                AnimationHelper.getTextureRegions(anim.frames, spritesheet),
-                AnimationHelper.getPlayMode(anim.playMode)));
+                CustomAnimationHelper.getTextureRegions(anim.frames, spritesheet),
+                CustomAnimationHelper.getPlayMode(anim.playMode)));
         }
     }
     

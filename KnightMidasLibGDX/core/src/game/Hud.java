@@ -247,59 +247,59 @@ public class Hud implements Disposable {
             frameCounter = 0;
             
             //Pagina 2
-            right.setText("right: " + screen.p1.right);
-            left.setText("left: " + screen.p1.left);
-            attack.setText("attack: " + screen.p1.attack);
-            jump.setText("jump: " + screen.p1.jump);
+            right.setText("right: " + screen.h1.right);
+            left.setText("left: " + screen.h1.left);
+            attack.setText("attack: " + screen.h1.attack);
+            jump.setText("jump: " + screen.h1.jump);
 
             //Pagina 3
-            isJumping.setText("isJumping: " + screen.p1.isJumping);
-            isAttacking.setText("isAttacking: " + screen.p1.isAttacking);
-            isSpinning.setText("isSpinning: " + screen.p1.isSpinning);
-            finishedAttack.setText("finishedAttack: " + screen.p1.finishedAttack);
-            canJump.setText("canJump: " + screen.p1.canJump);
-            canSpin.setText("canSpin: " + screen.p1.canSpin);
-            smallJump.setText("smallJump: " + screen.p1.smallJump);
-            tookDamage.setText("tookDamage: " + screen.p1.tookDamage);
-            isSpawning.setText("isSpawning: " + screen.p1.isSpawning);
-            hasExitKey.setText("hasExitKey: " + screen.p1.hasExitKey);
-            finishedLevel.setText("finishedLevel: " + screen.p1.finishedLevel);
+            isJumping.setText("isJumping: " + screen.h1.isJumping);
+            isAttacking.setText("isAttacking: " + screen.h1.isAttacking);
+            isSpinning.setText("isSpinning: " + screen.h1.isSpinning);
+            finishedAttack.setText("finishedAttack: " + screen.h1.finishedAttack);
+            canJump.setText("canJump: " + screen.h1.canJump);
+            canSpin.setText("canSpin: " + screen.h1.canSpin);
+            smallJump.setText("smallJump: " + screen.h1.smallJump);
+            tookDamage.setText("tookDamage: " + screen.h1.tookDamage);
+            isSpawning.setText("isSpawning: " + screen.h1.isSpawning);
+            hasExitKey.setText("hasExitKey: " + screen.h1.hasExitKey);
+            finishedLevel.setText("finishedLevel: " + screen.h1.finishedLevel);
 
             //Pagina 4
-            headTopCollided.setText("headTopCollided: " + screen.p1.headTopCollided);
-            bodyRightCollided.setText("bodyRightCollided: " + screen.p1.bodyRightCollided);
-            bodyLeftCollided.setText("bodyLeftCollided: " + screen.p1.bodyLeftCollided);
-            feetBottomCollided.setText("feetBottomCollided: " + screen.p1.feetBottomCollided);
+            headTopCollided.setText("headTopCollided: " + screen.h1.headTopCollided);
+            bodyRightCollided.setText("bodyRightCollided: " + screen.h1.bodyRightCollided);
+            bodyLeftCollided.setText("bodyLeftCollided: " + screen.h1.bodyLeftCollided);
+            feetBottomCollided.setText("feetBottomCollided: " + screen.h1.feetBottomCollided);
 
             //Pagina 5
             position.setText("position: " 
-                    + String.format("%.4f", screen.p1.position.x) + "  "
-                    + String.format("%.4f", screen.p1.position.y));
+                    + String.format("%.4f", screen.h1.pos.x) + "  "
+                    + String.format("%.4f", screen.h1.pos.y));
             futurePositionOffset.setText("futurePositionOffset: " 
-                    + String.format("%.4f", screen.p1.futurePositionOffset.x) + "  "
-                    + String.format("%.4f", screen.p1.futurePositionOffset.y));
+                    + String.format("%.4f", screen.h1.futurePosOffset.x) + "  "
+                    + String.format("%.4f", screen.h1.futurePosOffset.y));
             velocity.setText("velocity: " 
-                    + String.format("%.2f", screen.p1.velocity.x) + "  "
-                    + String.format("%.2f", screen.p1.velocity.y));
-            jumpSpeed.setText("jumpSpeed: " + screen.p1.jumpSpeed);
-            gravity.setText("gravity: " + screen.p1.gravity);
+                    + String.format("%.2f", screen.h1.velocity.x) + "  "
+                    + String.format("%.2f", screen.h1.velocity.y));
+            jumpSpeed.setText("jumpSpeed: " + screen.h1.jumpSpeed);
+            gravity.setText("gravity: " + screen.h1.gravity);
 
             //Pagina 6
-            jumpHeight.setText("jumpHeight: " + screen.p1.jumpHeight);
-            jumpHalfDurationTime.setText("jumpHalfDurationTime: " + screen.p1.jumpHalfDurationTime);
-            timeToRunSpeed.setText("timeToRunSpeed: " + screen.p1.timeToRunSpeed);
-            walkSpeed.setText("walkSpeed: " + screen.p1.walkSpeed);
-            runSpeed.setText("runSpeed: " + screen.p1.runSpeed);
+            jumpHeight.setText("jumpHeight: " + screen.h1.jumpHeight);
+            jumpHalfDurationTime.setText("jumpHalfDurationTime: " + screen.h1.jumpHalfDurationTime);
+            timeToRunSpeed.setText("timeToRunSpeed: " + screen.h1.timeToRunSpeed);
+            walkSpeed.setText("walkSpeed: " + screen.h1.walkSpeed);
+            runSpeed.setText("runSpeed: " + screen.h1.runSpeed);
             knockbackSpeed.setText("knockbackSpeed: " 
-                    + String.format("%.2f", screen.p1.knockbackSpeed.x) + "  "
-                    + String.format("%.2f", screen.p1.knockbackSpeed.y));
+                    + String.format("%.2f", screen.h1.knockbackSpeed.x) + "  "
+                    + String.format("%.2f", screen.h1.knockbackSpeed.y));
 
             //Pagina 7
-            actualState.setText("actualState: " + screen.p1.actualState);
-            walkTimer.setText("walkTimer: " + screen.p1.walkTimer);
-            jumpTimer.setText("jumpTimer: " + screen.p1.jumpTimer);
-            animationTimer.setText("animationTimer: " + screen.p1.animationTimer);
-            iFrames.setText("iFrames: " + screen.p1.iFrames);
+            actualState.setText("actualState: " + screen.h1.currentAnim);
+            walkTimer.setText("walkTimer: " + screen.h1.walkTimer);
+            jumpTimer.setText("jumpTimer: " + screen.h1.jumpTimer);
+            animationTimer.setText("animationTimer: " + screen.h1.animationTimer);
+            iFrames.setText("iFrames: " + screen.h1.iFrames);
 
             stage.clear();
             stage.addActor(tables[actualHudPage-1]);

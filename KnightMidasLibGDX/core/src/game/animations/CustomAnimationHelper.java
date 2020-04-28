@@ -7,7 +7,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;
 
 
-public class AnimationHelper {
+public class CustomAnimationHelper {
     
     public static Array<TextureRegion> getTextureRegions(Array<CustomAnimationFrame> frames, Texture texture) {
         Array<TextureRegion> result = new Array();

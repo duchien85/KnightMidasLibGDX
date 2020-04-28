@@ -1,7 +1,7 @@
 
 package game.animations;
 
-public enum PlayerState {
+public enum PlayerAnim {
     
     IDLE("heroIdle"),
     HALF_WALK("heroHalfWalk"),
@@ -15,7 +15,7 @@ public enum PlayerState {
     
     private final String stateName;
 
-    private PlayerState(String name) {
+    private PlayerAnim(String name) {
         this.stateName = name;
     }
 
